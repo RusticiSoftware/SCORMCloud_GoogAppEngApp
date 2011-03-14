@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Manage Courses
+{% endblock %}
+
+{% block bannertitle %}
+	Add and View Courses
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.navlinks a.allcourses').replaceWith("<span class='active'>Courses</span>");
+	
+	$('#cloudcourseid').change(function(){
+		$('#cloudcoursetitle').val($('#cloudcourseid option:selected').text());
+	});
+	
+	$('.coursebox:last').addClass('last');
+
+	$('.courselist .coursebox-title').hover(function(){
+		$(this).addClass('hover');
+	},function(){
+		$(this).removeClass('hover');		
+	});
+	
+	$('.courseactions').hover(function(){$(this).show();});
+
+
+	$(function() {
+		$("#tabs").tabs();
+	/*
+		$(".selectaction").each(function(){
+			var key = $(this).attr('key');
+			$(this).button({icons: {secondary: 'ui-icon-triangle-1-s'}})
+					.bind("blur.button",function(){$('.courseactions[key="' + key + '"]').hide();})
+					.bind("focus.button",function(){$('.courseactions[key="' + key + '"]').show();});
+		});
+		*/
+	});
+	
+});
+</script>
+
+
+{% endblock %}
+
+{% block headerblock %}
+<div class="headerblock">
+	<form action="/course/list" method="get">
+		<input type="text" id="qtext" name="qtext" size="30"/>
+		&nbsp;&nbsp;
+		<select id="qtype" name="qtype">
+			<option selected value='title'>title</option>
+			<option value='tag'>tag</option>
+		</select>			
+		&nbsp;&nbsp;<input type="submit" value="search courses" id="submit" name="submit"/>
+	</form>
+</div>
+{% endblock %}
+{% block pagecontent %}
+<div id="courselistContent" class='scormcloudContent'>
+	<div class="col70" >
+		<div class="lftCol">
+			<div id="tabs">
+				<ul>
+					<li><a href="#tabs-1">Upload New Course</a></li>
+					{% if showcloudcourse %}
+					<li><a href="#tabs-2">Add Cloud Course</a></li>
+					{% endif %}
+				</ul>
+				<div id="tabs-1">
+					<div class="statusbox">
+						<form action="{{ uploadaction }}" method="post" enctype="multipart/form-data">
+							<h4>Select Your Zip Package</h4>
+							<input type="file" name="filedata" size="40" />
+							<input type="submit" value="Import This Course" {% ifequal uploadaction None %} disabled {% endifequal%} />
+						</form>
+						
+					</div>
+				</div>
+				{% if showcloudcourse %}
+				<div id="tabs-2">
+					
+					<form action="/course/addFromCloud" method="post" enctype="multipart/form-data">
+						<strong>Select an existing SCORM Cloud Course: </strong>
+						<select type="checkbox" name="cloudcourseid" id="cloudcourseid">
+							<option value="">Select a Course</option>
+						{% for key,value in cloudcourses.items %}	
+
+							<option value="{{key}}">{{value}}</option>
+						{% endfor %}
+						</select>
+						<input type="hidden" value="" name="cloudcoursetitle" id="cloudcoursetitle" />
+						<input type="submit" value="Add This Course" />
+					</form>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	<div class="col30" >
+		<div class="rtCol">
+			<div class="infobox">
+			<p>A course needs to be packaged in a zipped (.zip) file to be recognized and properly imported.</p>
+			<br/>
+			<p>The SCORM Cloud can accept/deliver any course that is a valid SCORM (any version) or AICC package.</p> 
+			<br/>
+			<p>An <b>Orphaned Course</b> is a course that is no longer on the SCORM Cloud.  Associated assignments and registrations have been deactivated.</p>
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+	
+	<div class="col70" >
+		<div class="lftCol">
+			{% ifnotequal qtext None %}
+				{% ifnotequal qtype None %}
+				<div class="courselistheader">Your course <b>{{qtype}}</b> search for <b>{{qtext}}</b> produced {{coursecount}} {{coursecount|pluralize:"result,results"}}.
+				<a href="/course/list">Clear Search</a>
+				</div>
+				{% else %}
+				<div class="courselistheader">You have {{coursecount}} available courses.</div>
+				{% endifnotequal %}
+			{% else %}
+			<div class="courselistheader">You have {{coursecount}} available courses.</div>
+			{% endifnotequal %}
+			<div class="courselist">
+				<div>
+					{% for course in courses %}
+						<div class="coursebox">
+							<div class="coursebox-title">
+								<div class="right extrainfo">Added on {{course.createddate|date}}</div>
+								{% if course.orphaned %}
+								<div class="right orphan">Orphaned Course</div>
+								{% endif %}
+								{{course.title}}
+							</div>
+							<div class="coursebox-content closed">
+								<div class="right">
+								
+									<div class="buttonlinks">
+										<!--<div>
+											<button class="selectaction" key="{{course.courseid}}">Select Action</button>
+										</div>-->
+										<div class="courseactions " key="{{course.courseid}}">
+											<ul>
+												<li><a href="/course/admindetail/{{ course.courseid }}">Show Details</a></li>
+												{% if not course.orphaned %}
+												<li><a href="/registration/assign?courseid={{ course.courseid }}">Make Assigments</a></li>
+												<li><a href="/course/preview/{{ course.courseid }}?redirecturl={{currenturi}}">Preview</a></li>
+												{% endif %}
+												<li><a href="/course/update/{{ course.courseid }}">Edit</a></li>
+												<li><a href="/course/delete/{{ course.courseid }}" onclick="return confirm('Are you sure you want to delete this course? This will also delete ALL assignments and registrations for this course and cannot be undone.');">Delete</a></li>
+											</ul>
+										</div>
+									</div>
+									
+								</div>
+								{% ifnotequal course.tagstring None %}
+								<div class="coursedetails"><i>Tags : {{ course.tagstring }}</i></div>
+								{% endifnotequal %}
+								{% ifnotequal course.descriptiontext None %}
+								<div class="coursedetails">{{ course.descriptiontext }}</div>
+								{% endifnotequal %}
+								<div class="coursedetails origininfo">Added by {{ course.creator }}</div>
+								<div class="clear"></div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+				{% if morepages %}
+				<div class="pager">
+					<ul>
+					{% for i in pages %}
+						{% ifequal i page %}
+							<li class="active"><a href="/course/list/{{ i }}{{qs|noNone}}">{{ i }}</a></li>
+						{% else %}
+							<li><a href="/course/list/{{ i }}{{qs|noNone}}">{{ i }}</a></li>
+						{% endifequal %}
+					{% endfor %}
+					</ul>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	<div class="col30" >
+		<div class="rtCol">
+			<!--<div class="infobox">
+		Info about courses can go here.
+			</div>-->
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+
+
+{% endblock %}

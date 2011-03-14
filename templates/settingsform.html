@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Site Settings
+{% endblock %}
+
+{% block extrahead %}
+
+<script type="text/javascript">
+	$(function() {
+		{% ifequal tab 'cloud' %}
+		$("#tabs").tabs().tabs("select",'#tabs-2');
+		{% else %}
+		$("#tabs").tabs();
+		{% endifequal %}
+		
+		
+	});
+</script>
+{% endblock %}
+
+{% block bannertitle %}
+	Application Settings
+{% endblock %}
+
+
+
+{% block pagecontent %}
+<div id="settingsContent" class="scormcloudContent">
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1">Site Settings</a></li>
+			<li><a href="#tabs-2">SCORM Cloud Settings</a></li>
+			<li><a href="#tabs-3">Assignment Options</a></li>
+		</ul>
+		<div id="tabs-1">
+			<div class="col60">
+				<div class="lftCol">
+					<div class="statusbox-content">
+						<form action="/admin/settings/update" method="post" enctype="multipart/form-data">
+							<table>
+								<tr>
+									<td class="label">Google Apps Domain:</td>
+									<td><input type="text" id="appsdomain" name="appsdomain" value="{{ settings.appsdomain|noNone }}" /></td>
+								</tr>
+								<tr>
+									<td class="label">Site Title:</td>
+									<td><input type="text" id="sitetitle" name="sitetitle" value="{{ settings.sitetitle|noNone }}" /></td>
+								</tr>
+								<!--><tr>
+									<td class="label">Dashboard Logo Url:</td>
+									<td><input type="text" id="startlogo" name="startlogo" value="{{ settings.startlogo|noNone }}" /></td>
+								</tr>
+								<tr>
+									<td class="label">Dashboard Page Text:</td>
+									<td><textarea id="starttext" name="starttext" >{{ settings.starttext|noNone }}</textarea></td>
+								</tr>-->
+								<tr>
+									<td class="label"></td>
+									<td><input type="submit" value="Save Settings"></td>
+								</tr>
+							</table>
+				
+				
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="col40">
+				<div class="rtCol">
+					<div class="infobox">
+						<p><b>Google Apps Domain</b> is the name of your apps domain with which you intend to use the SCORM Cloud app.  For example, 'scorm.com'.</p>
+						<br/>
+						<p><b>Site Title</b> is the name of this site that you want your users to see when they log in.</p>
+					</div>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		
+		<div id="tabs-2">
+			<div class="col60">
+				<div class="lftCol">
+					<div class="statusbox-content">
+						<form action="/admin/settings/update" method="post" enctype="multipart/form-data">
+							<table>
+								<tr>
+									<td class="label">Scorm Cloud AppId:</td>
+									<td><input type="text" id="appid" name="appid" value="{{ settings.appid|noNone }}" /></td>
+								</tr>
+								<tr>
+									<td class="label">Secret Key:</td>
+									<td><input type="text" id="secretkey" name="secretkey" value="{{ settings.secretkey|noNone }}" /></td>
+								</tr>
+								<tr>
+									<td class="label">SCORM Cloud Service Url:</td>
+									<td><input type="text" id="servicehost" name="servicehost" value="{{ settings.servicehost|noNone }}" /></td>
+								</tr>
+								<tr>
+									<td class="label"></td>
+									<td><input type="submit" value="Save Settings"></td>
+								</tr>
+							</table>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="col40">
+				<div class="rtCol">
+					<div class="infobox">
+						<p><b>Scorm Cloud AppId</b> and <b>Secret Key</b> are the credentials that you get from the SCORM Cloud site for your application. To create an AppID for use with this application, visit the <a href="http://cloud.scorm.com/sc/user/Apps">SCORM Cloud</a> site and select <b>Add Application</b></p>
+						<br/>
+						<p><b>SCORM Cloud Service Url</b> is the cloud url that the application uses to send to and get information from the SCORM Cloud.  This value should default to 'http://cloud.scorm.com/EngineWebServices' and not require changing for most users.</p>
+						
+					</div>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div id="tabs-3">
+			<div class="col60">
+				<div class="lftCol">
+					<div class="statusbox-content">
+						<form action="/admin/settings/update" method="post" enctype="multipart/form-data">
+							<table>
+								<tr>
+									<td class="label">Default time of day assignments are due:</td>
+									<td><input type="text" id="duetime" name="duetime" value="{{ settings.duetime|time:"H:i" }}" /></td>
+								</tr>
+								<tr>
+									<td class="label">Calendar Timezone:</td>
+									<td><select id="timezone" name="timezone">
+										{% for tz in timezones %}
+											{% ifequal settings.calendartimezone tz %}
+											<option value="{{tz}}" selected>{{tz}}</option>
+											{% else %}
+											<option value="{{tz}}">{{tz}}</option>
+											{% endifequal %}
+										{% endfor %}
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="label">Enable Reminders:</td>
+									<td><input type="checkbox" id="enablereminders" name="enablereminders" {{ enablereminders }} /></td>
+								</tr>
+								<tr>
+									<td class="label">Reminder Sender Email:</td>
+									<td><input type="text" id="remindersender" name="remindersender" value="{{ settings.remindersender|noNone }}" /></td>
+								</tr>
+								<tr>
+									<td class="label">Enable Auto Expire:</td>
+									<td><input type="checkbox" id="enableautoexpire" name="enableautoexpire" {{ enableautoexpire }} /></td>
+								</tr>
+								<tr>
+									<td class="label"></td>
+									<td><input type="submit" value="Save Settings"></td>
+								</tr>
+							</table>
+						</form>
+						<br>
+					</div>
+				</div>
+			</div>
+			<div class="col40">
+				<div class="rtCol">
+					<div class="infobox">
+						<p><b>Default time of day assignments are due</b> is exactly what it says.  It is essentially the default time of day that assignments will be due when setting a due date.  This value can also be customized for each assignment on the 'Assignments' page.</p>
+						<p><b>Enable Reminders</b> will enable a process that will check hourly for assignment reminders that need to be sent. The process will send any reminders that are ready.</p>
+						<p><b>Reminder Email Sender</b> is the domain administrator account that is assignment reminder emails will show as having sent the reminder. Google apps require that the sender be a domain administrator.</p>
+						<p><b>Enable Auto Expire</b> will enable a process that will check hourly for expired assignments (past their duedates) that are set to auto-expire and set those assignments to inactive.  Note that auto expiration for assignments can be enabled/disabled individually, but this application setting needs to be enabled for any of the auto expirations to work.</p>
+					</div>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+</div>
+{% endblock %}

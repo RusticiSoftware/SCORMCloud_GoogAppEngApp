@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Course Detail
+{% endblock %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block bannertitle %}
+	Course Details
+{% endblock %}
+
+
+{% block pagecontent %}
+<div id="courseContent" class="scormcloudContent">
+	{% if istrainer %}
+	<div class="utils right">
+		<div>
+			<a href="/course/admindetail/{{ course.courseid }}">Go To The Admin Course View</a>
+		</div>
+	</div>
+	{% endif %}
+	<h1>{{ course.title }}</h1>
+	<div class="clear"> </div>
+	<table class="courseDetails fullWidth">
+		<tr>
+			<td class="half">
+				<div class="description">{{course.descriptiontext}}</div>
+				{% ifnotequal course.duration "unknown" %}
+				<div class="description">Expected Duration: {{course.duration|sectodur:"long"}}</div>
+				{% endifnotequal %}
+				{% ifnotequal tags None  %}
+					{% ifnotequal tags ""  %}
+						<div class="tags">Tags : <span class="tag">{{ tags }}</span></div>
+					{% endifnotequal %}
+				{% endifnotequal %}
+				{% ifnotequal reg None  %}
+					{% if reg.active %}
+					<div class="launchLink" ><a href="/registration/launch/{{ reg.regid }}">Launch Course</a></div>
+					{% else %}
+					<div class="launchLink" >Inactive Training</div>
+					{% endif %}
+					
+				{% else %}
+					{% if course.incatalog %}
+					<div class="launchLink" ><a href="/course/launch/{{ course.courseid }}">Launch Course</a></div>
+					{% endif %}
+				{% endifnotequal %}
+				
+			</td>
+			
+			<td class="half">
+				{% ifnotequal reg None  %}
+					{% ifnotequal reg.completion None  %}
+				
+					<table class="resultTable fullWidth">
+						<tr>
+							<td class="resultHeader" colspan="2">Your Current Training Results</td>
+						</tr><tr>	
+						<td class="results" >
+							<div class="statusDiv">
+								<span class="statLabel">Completion:</span> <span class=" statusVal {{ reg.completion }}">{{ reg.completion }}</span>
+							</div>
+							<div class="statusDiv">
+								<span class="statLabel">Satisfaction:</span> <span class=" statusVal {{ reg.satisfaction }}">{{ reg.satisfaction }}</span>
+							</div>
+
+
+						</td>
+						<td class="score">
+							<div class="statusDiv">
+								{% ifnotequal reg.score None %}
+									<span class="statLabel">Score:</span>
+								
+									{% ifnotequal reg.score 'unknown' %}
+										<span class="statusVal">{{ reg.score }}%</span>
+									{% else %}
+										<span class="statusVal unknown">No score recorded</span>
+									{% endifnotequal %}
+								{% endifnotequal %}
+							</div>
+							{% ifnotequal reg.timespent None %}
+								<div class="statusDiv">
+									<span class="statLabel">Total Time:</span>
+									<span class="statusVal">{{ reg.timespent|sectodur }}</span>
+								</div>
+							{% endifnotequal %}
+						</td>
+					
+						</tr>
+					</table>
+					{% endifnotequal %}
+				{% endifnotequal %}
+				
+				
+			</td>
+		</tr>
+	</table>
+	
+	
+	
+	
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Reports
+{% endblock %}
+
+
+
+{% block bannertitle %}
+	Training Reports
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript" src="http://cloud.scorm.com/Reportage/scripts/reportage.combined.nojquery.js"></script>
+<link rel="stylesheet" href="http://cloud.scorm.com/Reportage/css/reportage.combined.css" type="text/css" media="screen" />
+
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	
+	
+});
+
+</script>
+{% endblock %}
+
+
+
+{% block pagecontent %}
+<div id="reports" class="scormcloudContent">
+	
+	
+	<div class="userlist col80" >
+		<div class="lftCol">
+			<div class="reglistHead">Displaying 
+			{% ifnotequal poptype 'user' %}
+			<b>all</b>
+			{% else %}
+			<b>your</b>
+			{% endifnotequal %}
+			{% ifnotequal regtype 'cat' %}
+			<b>assigned</b>
+			{% else %}
+			<b>catalog</b>
+			{% endifnotequal %} courses
+			{% ifnotequal datetype 'all' %}
+			that are <b>{{datetype}}</b>
+			{% endifnotequal %}
+			{% ifnotequal seltype 'all' %}
+				{% ifnotequal datetype 'all' %} and
+				{% else %} that
+				 {% endifnotequal %}
+			are <b>{{seltype|qtypeDict}}</b>
+			{% endifnotequal %}
+			({{regcount}})
+			</div>
+			<table class="reglist fullWidth">
+				<tr>
+					<td></td>
+					<td></td>
+					<td class="colLabel">Completion</td>
+					<td class="colLabel">Satisfaction</td>
+					<td class="colLabel">Score</td>
+					<td class="colLabel">Total Time</td>
+				</tr>
+				
+			{% ifequal regtype "cat" %}
+			{% regroup regObjects|dictsort:"groupfield" by groupfield as grouped_field %}
+			{% else %}
+			{% regroup regObjects by groupfield as grouped_field %}
+			{% endifequal%}
+			
+			
+			{% for regGroup in grouped_field %}
+				{% for userreg in regGroup.list %}
+					{% ifequal forloop.counter 1 %}
+					<tr class="assignmentHead"><td class="title" colspan="2">{{userreg.reg.coursetitle}}</td>
+						{% ifnotequal userreg.assignment None %}
+							<td class="createdetails" colspan="2"><a href="/assignments/{{userreg.assignment.key|safe}}">Added {{userreg.assignment.createddate|date:"M d, Y g:i A"}} by {{userreg.assignment.createdbyuser|username}}</a></td>
+							<td class="duedate" colspan="2">Due {{userreg.assignment.duedate|date:"M d, Y g:i A"|default:"(no due date set)"}}</td></tr>
+						{% else %}
+							<td colspan="4"><td/></tr>
+						{% endifnotequal %}
+						
+					{% endifequal %}
+					<tr class="reg">
+						<td><strong><a href="/user/{{userreg.user.key|safe}}">{{userreg.user.fname}} {{userreg.user.lname}}</a></strong></td>
+						<td>{{userreg.user.email}}</td>
+						<td class="resultinfo"><span class=" statusVal {{ userreg.reg.completion }}">{{userreg.reg.completion}}<span></td>
+						<td class="resultinfo"><span class=" statusVal {{ userreg.reg.satisfaction }}">{{userreg.reg.satisfaction}}</td>
+						<td class="resultinfo">
+							{% ifnotequal userreg.reg.score None %}
+								{% ifnotequal userreg.reg.score "unknown" %}
+								<span class="statusVal">{{ userreg.reg.score }}%</span>
+								{% else %}
+									<span class="statusVal unknown">No Score</span>
+								{% endifnotequal %}
+							{% else %}
+								<span class="statusVal unknown">No Score</span>
+							{% endifnotequal %}
+						</td>
+						<td class="resultinfo">
+							{% ifnotequal userreg.reg.timespent None %}
+								<div class="statusDiv">
+									<span class="statusVal">{{ userreg.reg.timespent|sectodur }}</span>
+								</div>
+							{% else %}
+								<div class="statusDiv">
+									<span class="statusVal unknown">Not Started</span>
+								</div>
+							{% endifnotequal %}
+						</td class="resultinfo">
+					</tr>
+				{% endfor %}
+			{% endfor %}
+			</table>
+			{% if amorepages %}
+			<div class="pager">
+				<ul>
+				{% for i in apages %}
+					{% ifequal i apage %}
+						<li class="active"><a href="/reports?apage={{ i }}&pop={{poptype}}&date={{datetype}}&sel={{seltype}}">{{ i }}</a></li>
+					{% else %}
+						<li><a href="/reports?apage={{ i }}&pop={{poptype}}&date={{datetype}}&sel={{seltype}}">{{ i }}</a></li>
+					{% endifequal %}
+				{% endfor %}
+				</ul>
+			</div>
+			<div class="clear"></div>
+			{% endif %}
+			
+		</div>
+	</div>
+	<div class=" col20">
+		<div class="rtCol">
+			<div class="reportselector">
+				<div {% ifequal regtype "assign" %} class="active" {% endifequal%}>
+					<a href="/reports?regtype=assign&user={{poptype}}&date={{datetype}}&sel={{seltype}}">Assignment Training</a></div>
+				<div {% ifequal regtype "cat" %} class="active" {% endifequal%}>
+					<a href="/reports?regtype=cat&sel={{seltype}}">Catalog Training</a></div>
+				{% ifequal regtype "assign" %}
+					<hr/>
+					<div {% ifequal poptype "all" %} class="active" {% endifequal%}>
+						<a href="/reports?pop=all&date={{datetype}}&sel={{seltype}}">All Assignments</a></div>
+					<div {% ifequal poptype "user" %} class="active" {% endifequal%}>
+						<a href="/reports?pop=user&date={{datetype}}&sel={{seltype}}">My Assignments</a></div>
+					<hr/>
+					<div {% ifequal datetype "all" %} class="active" {% endifequal%}>
+						<a href="/reports?pop={{poptype}}&date=all&sel={{seltype}}">Any Duedate</a></div>
+					<div {% ifequal datetype "expired" %} class="active" {% endifequal%}>
+						<a href="/reports?pop={{poptype}}&date=expired&sel={{seltype}}">Expired Assignments</a></div>
+					<div {% ifequal datetype "pending" %} class="active" {% endifequal%}>
+						<a href="/reports?pop={{poptype}}&date=pending&sel={{seltype}}">Pending Assignments</a> (not expired)</div>
+					<div {% ifequal datetype "nodate" %} class="active" {% endifequal%}>
+						<a href="/reports?pop={{poptype}}&date=nodate&sel={{seltype}}">No Due Date</a></div>
+					<div {% ifequal datetype "active" %} class="active" {% endifequal%}>
+						<a href="/reports?pop={{poptype}}&date=active&sel={{seltype}}">Active Assignments</a></div>
+					<div {% ifequal datetype "inactive" %} class="active" {% endifequal%}>
+						<a href="/reports?pop={{poptype}}&date=inactive&sel={{seltype}}">Inactive Assignments</a></div>
+				{% endifequal%}
+				<hr/>
+				<div {% ifequal seltype "all" %} class="active" {% endifequal%}>
+					<a href="/reports?regtype={{regtype}}&pop={{poptype}}&date={{datetype}}&sel=all">Any Start/Completion State</a></div>
+				<div{% ifequal seltype "complete" %} class="active" {% endifequal%}>
+					<a href="/reports?regtype={{regtype}}&pop={{poptype}}&date={{datetype}}&sel=complete">Complete</a></div>
+				<div {% ifequal seltype "incomplete" %} class="active" {% endifequal%}>
+					<a href="/reports?regtype={{regtype}}&pop={{poptype}}&date={{datetype}}&sel=incomplete">Incomplete</a></div>
+				<div {% ifequal seltype "started" %} class="active" {% endifequal%}>
+					<a href="/reports?regtype={{regtype}}&pop={{poptype}}&date={{datetype}}&sel=started">Started</a></div>
+				<div {% ifequal seltype "notstarted" %} class="active" {% endifequal%}>
+					<a href="/reports?regtype={{regtype}}&pop={{poptype}}&date={{datetype}}&sel=notstarted">Not Started</a></div>
+			</div>
+			{% ifnotequal reportagelaunchurl None %}
+			<div class="infobox">
+				<a href="{{reportagelaunchurl}}" target="_new">Launch Reportage</a>
+			</div>
+			{% endifnotequal %}
+		
+		</div>
+	</div>
+	
+
+	{% ifnotequal None None  %}
+	<div class="coursebox">
+		<div class="coursebox-title">Your Results Report</div>
+		<div class="coursebox-content">
+			<div id="CourseSummary">
+				Loading Results Summary...
+			</div>
+			<div id="TrainingInteractions" class="left half">
+				Loading Training Interactions...
+			</div>
+			<div id="TrainingComments" class="left half second">
+				Loading Training Comments...
+			</div>
+			<div class="clear"> </div>
+			<script type="text/javascript">
+				$(document).ready(function(){
+					loadScript("{{ reportagesummaryurl|safe }}");
+					loadScript("{{ reportageinteractionsurl|safe }}");
+					loadScript("{{ reportagecommentsurl|safe }}");
+				});
+			</script>
+			
+		</div>
+
+	</div>
+	{% endifnotequal %}
+	
+{% endblock %}

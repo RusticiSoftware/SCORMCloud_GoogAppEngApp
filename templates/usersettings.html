@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Site Settings
+{% endblock %}
+
+{% block extrahead %}
+
+<script type="text/javascript">
+	$(function() {
+		$("#tabs").tabs();
+	});
+</script>
+{% endblock %}
+
+{% block bannertitle %}
+	Personal Settings
+{% endblock %}
+
+{% block bannermenu %}
+<ul class="navlinks">
+	<!--<li><a class="dashboard" href="/">Dashboard</a></li>-->
+	<li><a class="mytraining" href="/">My Training</a></li>
+	{% if iscc %}
+	<li><a class="allcourses" href="/course/list">Courses</a></li>
+	{% endif %}
+	{% if istrainer %}
+	<li><a class="newassign" href="/registration/assign">Assignments</a></li>		
+	{% endif %}
+	{% if isadmin %}
+	<li><a class="users" href="/admin/user/list">Users</a></li>
+	{% endif %}
+</ul>
+{% endblock %}
+
+
+{% block pagecontent %}
+<div id="settingsContent" class="scormcloudContent">
+
+	<div class="col50">
+		<div class="lftCol">	
+			<form action="/usersettingsaction" method="post" enctype="multipart/form-data">
+				<input type="hidden" id="ukey" name="ukey" value="{{ userprofile.email }}" />
+				<table>
+					<tr>
+						<td class="label">Email:</td>
+						<td>{{ userprofile.email }}</td>
+					</tr>
+					<tr>
+						<td class="label">First Name:</td>
+						<td><input type="text" id="fname" name="fname" value="{{ userprofile.fname }}" size="50" /></td>
+					</tr>
+					<tr>
+						<td class="label">Last Name:</td>
+						<td><input type="text" id="lname" name="lname" value="{{ userprofile.lname }}" size="50" /></td>
+					</tr>
+					<tr>
+						<td class="label">Timezone:</td>
+						<td><select id="timezone" name="timezone">
+							{% for tz in timezones %}
+								{% ifequal userprofile.timezone tz %}
+								<option value="{{tz}}" selected>{{tz}}</option>
+								{% else %}
+								<option value="{{tz}}">{{tz}}</option>
+								{% endifequal %}
+							{% endfor %}
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="label"></td>
+						<td><input type="submit" value="Save Settings"></td>
+					</tr>
+				</table>
+			
+			</form>
+		</div>
+	</div>
+	<div class="col50">
+		<div class="rtCol">
+			<!--<div class="infobox">
+				<p>Your timezone setting will keep dates/times coordinated with your preferred timezone.</p>
+				
+				
+			</div>-->
+			
+		</div>
+	</div>
+</div>
+{% endblock %}

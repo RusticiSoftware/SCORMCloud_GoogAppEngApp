@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: My Training
+{% endblock %}
+
+{% block bannertitle %}
+	My Training
+{% endblock %}
+
+{% block extrahead %}
+<!--<script type="text/javascript" src="http://cloud.scorm.com/Reportage/scripts/reportage.combined.nojquery.js"></script>
+<link rel="stylesheet" href="http://cloud.scorm.com/Reportage/css/reportage.combined.css" type="text/css" media="screen" />-->
+<script type="text/javascript" src="/scripts/date.format.js"></script>
+{% endblock %}
+
+{% block headerblock %}
+<div class="headerblock">
+	<a href="http://fusion.google.com/add?source=atgs&moduleurl=http%3A//{{currenthost}}/gadgets/usergadget.xml">
+		<img src="http://buttons.googlesyndication.com/fusion/add.gif" border="0" alt="Add to Google">
+	</a>
+</div>
+{% endblock %}
+
+
+{% block pagecontent %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.navlinks a.mytraining').replaceWith("<span class='active'>My Training</span>");
+	
+});
+
+</script>
+<div id="mycoursesContent" class="scormcloudContent">
+	
+	<div class="col60">
+		<div class="lftCol">
+		<h1>You have {{regcount}} total trainings.</h1>
+	
+		<div class="coursebox">
+			<div class="coursebox-title">
+				Your Active Training
+			</div>
+			<div class="coursebox-content">
+			{% for reg in unfinishedregs %}
+			<div class="statusbox">
+				<div class="right launchLink">
+					{% if reg.active %}
+						<a class="launchLink" href="/registration/launch/{{ reg.regid }}">Launch Course</a>
+					{% else %}
+						Currently Inactive
+					{% endif %}
+				</div>
+				<div class="regtitle">
+					{{ reg.coursetitle }}
+				</div>
+				<div class="clear"></div>
+				{% ifnotequal reg.duedate None %}
+					<div class="left duedate {{reg.overdue}}">
+						{% ifnotequal reg.overdue '' %}
+						<b>Overdue</b>
+						{% endifnotequal %}
+						Due Date : {{ reg.duedate|date:"M d, Y g:i A"|default:"no due date" }}
+					</div>	
+				{% endifnotequal %}
+				{% if reg.moreinfo %}
+				<div class="right togglebtn moreinfo" ontxt="hide info" offtxt="more info">more info</div>
+				<div class="clear"></div>
+				<div class="clear descDiv togglediv off">
+					{% ifnotequal reg.descriptiontext None %}
+						<div class="description">{{reg.descriptiontext}}</div>
+					{% endifnotequal %}
+					{% ifnotequal reg.duration None %}
+						{% ifnotequal reg.duration "unknown" %}
+						<div class="duration">Expected Duration: {{reg.duration|sectodur:"long"}}</div>
+						{% endifnotequal %}
+					{% endifnotequal %}
+					
+				</div>
+				{% endif %}
+				
+				{% ifnotequal reg.lastaccess None  %}
+				<div class="clear"></div>
+				<table class="statustable">
+					<tr class="regRow">
+						
+						<td class="results" >
+							<div class="statusDiv">
+								<span class="statLabel">Completion:</span> <span class=" statusVal {{ reg.completion }}">{{ reg.completion }}</span>
+							</div>
+							<div class="statusDiv">
+								<span class="statLabel">Satisfaction:</span> <span class=" statusVal {{ reg.satisfaction }}">{{ reg.satisfaction }}</span>
+							</div>
+					
+						
+						</td>
+						<td class="score">
+							{% ifnotequal reg.score 'unknown' %}
+								{% ifnotequal reg.score None %}
+								<div class="statusDiv">
+									<span class="statLabel">Score:</span>
+									<span class="statusVal">{{ reg.score }}%</span>
+								</div>
+								{% endifnotequal %}
+							{% endifnotequal %}
+							{% ifnotequal reg.timespent None %}
+								<div class="statusDiv">
+									<span class="statLabel">Total Time:</span>
+									<span class="statusVal">{{ reg.timespent|sectodur }}</span>
+								</div>
+							{% endifnotequal %}
+						</td>
+
+						
+						<td class="rightalign">
+							<div class="time "> 
+							
+								<span class="statLabel">Last Accessed:</span> 
+								<br/>
+								{{ reg.lastaccess|date:"M d, Y g:i A"|default:"no due date" }}
+								<br/>
+								<span class="relevanceVal">{{ reg.lastaccess|timesince }} ago</span>
+							</div>
+
+						</td>
+						
+					</tr>
+				</table>
+				{% else %}
+				<div class="right unknown notstarted">Not Started</div>
+				<div class="clear"></div>
+				{% endifnotequal %}
+			</div>
+			
+			<hr/>
+			{% empty %}
+			<div>There are no courses on this list yet.</div>
+			{% endfor %}
+			{% if actmorepages %}
+			<div class="pager">
+				<ul>
+				{% for i in actpages %}
+					{% ifequal i actpage %}
+						<li class="active"><a href="/mytraining?actpage={{ i }}&inactpage={{inactpage}}&cpage={{cpage}}">{{ i }}</a></li>
+					{% else %}
+						<li><a href="/mytraining?actpage={{ i }}&inactpage={{inactpage}}&cpage={{cpage}}">{{ i }}</a></li>
+					{% endifequal %}
+				{% endfor %}
+				</ul>
+			</div>
+			<div class="clear"></div>
+			{% endif %}
+			
+			</div>
+		</div>
+	
+	
+		<div class="coursebox">
+			<div class="coursebox-title">
+				Your Completed / Inactive Training
+			</div>
+			<div class="coursebox-content">
+			{% for reg in completedregs %}
+			<div class="statusbox">
+				
+				<div class="right launchLink">
+					{% if reg.active %}
+					<a class="launchLink" href="/registration/launch/{{ reg.regid }}">Launch Course</a>
+					{% else %}
+					Currently Inactive
+					{% endif %}
+					
+				</div>
+				<div class="regtitle">
+					{{ reg.coursetitle }}
+				</div>
+				<div class="clear"></div>
+				{% ifnotequal reg.duedate None %}
+					<div class="left duedate">
+						Due Date : {{ reg.duedate|date:"M d, Y g:i A"|default:"no due date" }}
+					</div>	
+				{% endifnotequal %}
+				{% if reg.moreinfo %}
+				<div class="right togglebtn moreinfo" ontxt="hide info" offtxt="more info">more info</div>
+				<div class="clear"></div>
+				<div class="clear descDiv togglediv off">
+					{% ifnotequal reg.descriptiontext None %}
+						<div class="description">{{reg.descriptiontext}}</div>
+					{% endifnotequal %}
+					{% ifnotequal reg.duration None %}
+						{% ifnotequal reg.duration "unknown" %}
+						<div class="duration">Expected Duration: {{reg.duration|sectodur:"long"}}</div>
+						{% endifnotequal %}
+					{% endifnotequal %}
+					
+				</div>
+				{% endif %}
+				{% ifnotequal reg.lastaccess None %}
+				<table class="statustable">
+					<tr class="regRow">
+						<td class="results" >
+							<div class="statusDiv">
+								<span class="statLabel">Completion:</span> <span class=" statusVal {{ reg.completion }}">{{ reg.completion }}</span>
+							</div>
+							<div class="statusDiv">
+								<span class="statLabel">Satisfaction:</span> <span class=" statusVal {{ reg.satisfaction }}">{{ reg.satisfaction }}</span>
+							</div>
+					
+						
+						</td>
+						<td class="score">
+							{% ifnotequal reg.score 'unknown' %}
+								{% ifnotequal reg.score None %}
+								<div class="statusDiv">
+									<span class="statLabel">Score:</span>
+									<span class="statusVal">{{ reg.score }}%</span>
+								</div>
+								{% endifnotequal %}
+							{% endifnotequal %}
+							{% ifnotequal reg.timespent None %}
+								<div class="statusDiv">
+									<span class="statLabel">Total Time:</span>
+									<span class="statusVal">{{ reg.timespent|sectodur }}</span>
+								</div>
+							{% endifnotequal %}
+						</td>
+						<td class="rightalign">
+							<div class="time "> 
+								<span class="statLabel">Last Accessed:</span> 
+								<br/>
+								{{ reg.lastaccess|date:"M d, Y g:i A"|default:"no due date" }}</span>
+								<br/>
+								<span class="relevanceVal">{{ reg.lastaccess|timesince }} ago</span>
+							</div>
+						</td>
+						
+					</tr>
+				</table>
+				{% else %}
+					<div class="right unknown notstarted">Not Started</div>
+					<div class="clear"></div>
+				{% endifnotequal %}
+			</div>
+		
+			<hr/>
+			{% empty %}
+			<div>There are no courses on this list yet.</div>
+			{% endfor %}
+			{% if inactmorepages %}
+			<div class="pager">
+				<ul>
+				{% for i in inactpages %}
+					{% ifequal i inactpage %}
+						<li class="active"><a href="/mytraining?actpage={{ actpage }}&inactpage={{i}}&cpage={{cpage}}">{{ i }}</a></li>
+					{% else %}
+						<li><a href="/mytraining?actpage={{ actpage }}&inactpage={{i}}&cpage={{cpage}}">{{ i }}</a></li>
+					{% endifequal %}
+				{% endfor %}
+				</ul>
+			</div>
+			<div class="clear"></div>
+			{% endif %}
+			</div>
+		</div>
+		</div>
+	</div>
+	<div class="col40">
+		<div class="catalogbox rtCol">
+			<h2>Course Catalog</h2>
+			
+				{% for course in courses %}
+					<table class="courseTable fullWidth">
+					<tr>
+					<td><div class='newcourse'>
+							<strong>{{ course.course.title }}</strong>
+							<div class="courseorigin">Added on {{course.course.createddate|date}}</div>
+
+							{% ifnotequal course.userreg None%}
+							<a href="/registration/launch/{{ course.userreg.regid }}">Launch Training Now</a>
+							{% else %}
+							<a href="/course/launch/{{ course.course.courseid }}">Launch Training Now</a>
+							{% endifnotequal %}
+						</div>
+					</td>
+					<td class="resultsCell">
+						{% ifnotequal course.userreg None%}
+						<table class="resultTable">
+							<tr>
+							{% ifnotequal course.userreg.completion None  %}
+							<td class="results" >
+								<div class="statusDiv">
+									<span class="statLabel">Completion:</span> <span class=" statusVal {{ course.userreg.completion }}">{{ course.userreg.completion }}</span>
+								</div>
+								<div class="statusDiv">
+									<span class="statLabel">Satisfaction:</span> <span class=" statusVal {{ course.userreg.satisfaction }}">{{ course.userreg.satisfaction }}</span>
+								</div>
+
+
+							</td>
+							<td class="score">
+								{% ifnotequal course.userreg.score 'unknown' %}
+									{% ifnotequal course.userreg.score None %}
+									<div class="statusDiv">
+										<span class="statLabel">Score:</span>
+										<span class="statusVal">{{ course.userreg.score }}%</span>
+									</div>
+									{% endifnotequal %}
+								{% endifnotequal %}
+								{% ifnotequal course.userreg.timespent None %}
+									<div class="statusDiv">
+										<span class="statLabel">Total Time:</span>
+										<span class="statusVal durtime">{{ course.userreg.timespent|sectodur }}</span>
+									</div>
+								{% endifnotequal %}
+							</td>
+							{% else %}
+							<td class="notstarted">Not Started</td>
+				
+							{% endifnotequal %}
+							</tr>
+						</table>
+						{% endifnotequal %}
+					</td>
+					</tr>
+					</table>
+					<hr>
+			
+				{% endfor %}
+				
+				{% if cmorepages %}
+				<div class="pager reverseColor">
+					<ul>
+					{% for i in cpages %}
+						{% ifequal i cpage %}
+							<li class="active"><a href="/mytraining?actpage={{ actpage }}&inactpage={{inactpage}}&cpage={{i}}">{{ i }}</a></li>
+						{% else %}
+							<li><a href="/mytraining?actpage={{ actpage }}&inactpage={{inactpage}}&cpage={{i}}">{{ i }}</a></li>
+						{% endifequal %}
+					{% endfor %}
+					</ul>
+				</div>
+				<div class="clear"></div>
+				{% endif %}
+			
+		</div>
+	</div>
+</div>
+{% endblock %}

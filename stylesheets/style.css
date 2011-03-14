@@ -1,0 +1,367 @@
+body{background-color: #FFFFFF;font-family: Helvetica,Arial,sans-serif;margin:0;font-size:13px;}
+
+a, a:link {color:#2A5DB0;}
+
+.right {float:right;}
+.left {float:left;}
+.clear {clear:both;}
+.nodisplay {display:none;}
+
+.textright{text-align:right;}
+
+#gappsheader{position:relative;}
+
+#actionstatus{position:fixed;top:0px;z-index:1001;background-color:#A1C9E3; padding:3px 5px;display:none;}
+
+#userMessageWrapper {background:transparent;position:absolute;bottom:0;right:0;padding:20px;z-index:999;}
+#userMessageWrapper .messagebox {border:2px solid #333333;color:#333333;width:250px;float:right;clear:right;margin-top:15px;background-color:#ffffff;}
+#userMessageWrapper .messagebox.warning {background-color:#FAD163;}
+#userMessageWrapper .messagebox.error {background-color:#FF9999;color:#000000;}
+#userMessageWrapper .messagebox .cancelmsg{cursor:pointer;background-image:url(../images/cancel20_sprite.png);background-position:right 2px;background-repeat:no-repeat;
+	float:right;text-indent:-2323px;width:23px;height:23px;margin:2px 5px 0 0;}
+#userMessageWrapper .messagebox .cancelmsg.hover {background-position:right -19px;}
+#userMessageWrapper .messagebox .message {padding:10px;}
+
+#glinks {float:left;padding:4px 8px 0;height:20px;}
+
+#userheader {text-align:right;padding:4px 8px 5px;float:right;}
+
+#topfiller {height: 22px;}
+
+.gappsheader {width:100%;min-width:1020px;}
+
+#headerContainer {padding: 10px 5px 0;}
+#headerContainer table {width:100%;min-width:1020px;}
+
+.headerblock {vertical-align:top;float:right;}
+
+.linedivider {border-top:1px solid #CCCCCC;font-size:1px;height:0;width:100%;clear:both;}
+
+h1, h2, h3, h4 {margin:0;}
+
+h2 {background-color:#E5ECF9;border-bottom:medium none;border-top:1px solid #3366CC;margin:0 10px 10px 0;padding:2px;}
+h4 {font-size:1.2em;font-weight:bold;}
+
+p {margin:2px 0;}
+.nodata {font-style:italic;}
+
+.ui-tabs {padding:0;}
+.ui-corner-all {-moz-border-radius:0;}
+
+
+
+#logo {font-weight: bold;height:22px;background:transparent url(../images/cloud_sm.png) no-repeat 5px 0;padding:4px 4px 0px 30px;}
+#siteheadtitle{font-size: 2em;font-weight: bold;}
+
+.scormcloudContent{padding:8px;min-width:1020px;}
+.scormcloudContent .infobox {background-color:#E5ECF9;padding:10px;}
+
+
+.scormcloudContent div.col80{width:80%;float:left;padding-bottom:15px;}
+.scormcloudContent div.col70{width:70%;float:left;padding-bottom:15px;}
+.scormcloudContent div.col60{width:60%;float:left;padding-bottom:15px;}
+.scormcloudContent div.col50 {width:50%;float:left;padding-bottom:15px;}
+.scormcloudContent div.col40{width:40%;float:left;padding-bottom:15px;}
+.scormcloudContent div.col30{width:30%;float:left;padding-bottom:15px;}
+.scormcloudContent div.col20{width:20%;float:left;padding-bottom:15px;}
+.scormcloudContent div.clear {clear:both;}
+
+.scormcloudContent .rtCol {margin-left:5px;}
+.scormcloudContent .lftCol {margin-right:5px;}
+
+td.leftalign {text-align:left;}
+td.rightalign {text-align:right;}
+
+.scormcloudContent .reportage .summary_widget {font-size:.9em;width:100%;}
+
+#container {margin-top:2.5px;}
+
+.half {width:50%;}
+.fullWidth {width:100%;}
+
+
+
+
+.statusbox {}
+.statustable {width: 100%;margin-top:3px;border-collapse:collapse;}
+.statuscell {padding: 10px;}
+
+.coursebox {padding-bottom: 10px;}
+.coursebox-title {padding: 5px;background-color: #E5ECF9;font-size:1.2em;font-weight:bold;border:1px solid #C5D7EF;cursor:pointer;}
+.coursebox-title .extrainfo {font-size:.7em;font-weight:normal;}
+.coursebox-title .orphan {margin-right:10px;font-size:.9em;color:#FF0000;}
+.coursebox-content {padding: 5px;border:1px solid #C5D7EF;border-width:0 1px 1px;}
+
+#settingsContent table {border-collapse:separate;border-spacing:5px;}
+#settingsContent td.label{text-align:right;vertical-align:top;padding-top:5px;}
+#settingsContent input[type="text"] {width:350px;}
+#settingsContent textarea {width:400px;height:200px;}
+
+#courselistContent {}
+#courselistContent .courselistheader {padding:5px;font-size:1.5em;background-color:#DDDDDD;}
+#courselistContent .courselistheader a {font-size:.7em;margin-left:15px;}
+#courselistContent .courselist {}
+#courselistContent .courselist .coursebox {padding:0;}
+#courselistContent .courselist .coursebox.last {border-bottom:2px solid #AAAAAA;}
+#courselistContent .courselist .coursebox-title {border-width:1px 0 0;background-color:#ffffff;border-color:#AAAAAA;}
+#courselistContent .courselist .coursebox-title.hover{background-color:#E5ECF9;}
+#courselistContent .courselist .coursebox-title.active {background-color: #E5ECF9;padding-bottom:2px;border-bottom:1px dotted #E5ECF9;}
+#courselistContent .courselist .coursebox-title.active.hover {border-bottom:1px dotted #BBBBBB;}
+#courselistContent .courselist .coursebox-content {border-width:0;background-color:#E5ECF9;padding:0 5px 5px;min-height:30px;}
+#courselistContent .courselist .origininfo {font-size:.9em;}
+#courselistContent .courselist .coursedetails {margin:0 140px 5px 0;}
+#courselistContent .courselist .selectaction {font-size:1.0em;}
+#courselistContent .courselist .courseactions {/*background-color:#DDDDDD;padding:5px;position:absolute;z-index:1000;*/text-align:right;}
+#courselistContent .courselist .courseactions ul {margin:0;padding:0;}
+#courselistContent .courselist .courseactions ul li {font-size:1.0em;padding:3px;list-style:none outside none;}
+
+.infobox p {margin-left:10px;text-indent:-10px;font-size:1.0em;}
+
+#courseContent .courseDetails {}
+#courseContent .description{margin-top:10px;font-size:1.1em;}
+#courseContent .tags{margin-top:10px;}
+#courseContent .tags .tag{font-weight:bold;}
+#courseContent .courseDetails .launchLink {font-size:2.0em;font-weight:bold;margin:10px 0;}
+#courseContent .courseDetails .resultTable  {font-size:1.5em;border:2px solid #E5ECF9;}
+#courseContent .courseDetails .resultTable td {padding:5px;}
+#courseContent .courseDetails .resultTable .resultHeader {font-size:.8em;font-weight:bold;border-bottom:1px solid #E5ECF9;}
+#courseContent .courseDetails .resultTable .statusDiv {margin:5px 0;}
+#courseContent .courseDetails .resultTable .statLabel {font-size:.8em;color:#888888;}
+#courseContent .utils {font-size:1.2em;text-align:right;}
+#courseContent .utils div {margin:4px 0;}
+
+#courseContent .utils.right {margin:0;}
+#courseContent .coursebox {}
+#courseContent .coursebox .coursebox-title {padding:5px;}
+#courseContent .coursebox .coursebox-content.metadata {font-size:1.1em;}
+#courseContent .coursebox .coursebox-content..metadata .label{color:#888888;vertical-align:top;}
+#courseContent .reportage .details_widget {width:auto;}
+#courseContent .reportage .details_header {background-color: #E5ECF9;border:1px solid #C5D7EF;}
+
+table.reglist tr.groupHeader td {background-color:#DDDDDD;padding:3px;}
+table.reglist tr.reg td {padding:3px 0;border-bottom:1px dotted #C5D7EF;}
+table.reglist td.colLabel{color:#333333;font-size:.9em;text-align:right;text-decoration:none;}
+table.reglist td.resultinfo{text-align:right;}
+table.reglist td.assigninfo{font-size:.9em;}
+table.reglist td.assigninfo span.label{color:#888888;}
+
+#mycoursesContent h1 {margin:10px 0;font-size:2.0em;}
+#mycoursesContent div.launchLink {font-size:1.1em;font-weight:bold;background-color:#E5ECF9;padding:4px 6px;}
+#mycoursesContent .coursebox {margin-top:10px;}
+#mycoursesContent .coursebox .coursebox-title {background-color:#DDDDDD;border:none;}
+#mycoursesContent .coursebox .coursebox-content {border:none;}
+#mycoursesContent hr {color:#DDDDDD;}
+#mycoursesContent .regRow td.titleCell {}
+#mycoursesContent .regtitle{font-weight:bold;font-size:1.2em;margin-bottom:5px;margin-right:150px;}
+#mycoursesContent .regRow .launchLink{font-weight:bold;font-size:1.1em;}
+#mycoursesContent .regRow .results {text-align:left;width:200px;}
+#mycoursesContent .regRow .score {text-align:left;width:200px;vertical-align:middle}
+#mycoursesContent .regRow .score .statusVal {font-size:1.0em;font-weight:bold;}
+#mycoursesContent .time { vertical-align:middle;}
+#mycoursesContent .time .statLabel {font-size:.8em;color:#888888;}
+#mycoursesContent .time .relevanceVal {font-size:1.0em;font-weight:bold;}
+#mycoursesContent .time .localizeDate {font-size:.8em;color:#333333;}
+#mycoursesContent .notstarted {font-size:1.1em;margin-top:2px;}
+#mycoursesContent .regRow .statusDiv {margin-bottom:3px;}
+#mycoursesContent .regRow .statusVal {font-size:1.0em;}
+#mycoursesContent .resultTable {font-size:.9em;width:100%}
+#mycoursesContent .statLabel {font-size:.8em;color:#888888;}
+#mycoursesContent .catalogbox .courseorigin {font-style:italic;font-size:.8em;margin:2px 0;}
+#mycoursesContent .catalogbox {background-color:#E5ECF9;padding-bottom:10px;}
+#mycoursesContent .catalogbox h2 {padding:5px;font-weight:bold;font-size:1.2em;margin:0;border:none;}
+#mycoursesContent .catalogbox hr {margin:2px 4px;}
+#mycoursesContent .catalogbox .courseTable td {padding:0 5px;}
+#mycoursesContent .durtime {white-space:nowrap;}
+#mycoursesContent .togglebtn {color:#2A5DB0;cursor:pointer;text-decoration:underline;font-size:.9em;margin-top:3px;}
+#mycoursesContent .togglediv {display:none;margin:3px 0;padding:5px;background-color:#DDDDDD;}
+#mycoursesContent .descDiv .description {margin-bottom:5px;}
+#mycoursesContent .duedate.overdue {background-color:#FF8888;padding:2px 5px;}
+
+#updateCourse {}
+#updateCourse table{border-collapse:separate;border-spacing:5px;}
+#updateCourse  td.label{text-align:right;color:#888888;}
+#updateCourse  td.label.desc{vertical-align:top;}
+#updateCourse  td.rowspace {height:5px;}
+#updateCourse input.textinput {width:500px;}
+#updateCourse textarea {width:500px;height:100px;}
+#updateCourse .helptext {color:#888888;font-size:.9em;position:absolute;}
+
+
+.unknown {
+	font-weight:bold;
+	color: #AAAAAA;
+}
+.complete,.passed {
+	font-weight:bold;
+	color: green;
+}
+.incomplete,.failed {
+	font-weight:bold;
+	color: red;
+}
+.status-black {
+	font-weight:bold;
+	color: #000000;
+}
+
+
+.dateRelevance {float:right;font-style:italic;font-size:.8em;font-weight:normal;}
+.titleWarning {margin-left:20px; color:#FF0000; font-size:.9em;}
+
+#topnav {background-color:#E5ECF9;border-top:1px solid #3366CC;font-size:1em;
+margin:0;padding:0.1em 0;white-space:nowrap;width:100%;min-width:1020px;word-wrap:normal;}
+#topnav ul {line-height:1em;list-style-image:none;list-style-position:outside;list-style-type:none;
+margin:0;padding:0.47em 0;text-align:right;}
+#topnav ul li {display:inline;float:none;margin:0;padding:0;}
+#topnav h1 {background-color:transparent;border:0 none;float:left;
+font-size:1.5em;font-weight:bold;line-height:1.3em;margin:0;padding:0 0 0 10px;}
+#topnav li a {padding:0 0.8em;}
+.navlinks span.active{font-weight:bold;color:#000;padding:0 0.8em;}
+
+.fakelink {color:#2A5DB0;cursor:pointer;text-decoration:underline;}
+.badInputMsg {color:#FF0000; font-size:.9em; display:none;}
+
+
+#startContent {}
+#startContent .startText {font-size:1.1em;padding:0px 10px 5px;text-align:center;}
+#startContent .startText .logo {text-align:center;}
+
+#startContent .newcourse i {font-size:.8em;}
+#startContent .courseTable {width:100%;}
+#startContent .resultsCell {width:250px;}
+#startContent .resultTable {font-size:.8em;width:100%}
+#startContent .resultTable .statLabel {color:#888888;}
+#assignTraining .dateselector  {margin:15px 0 5px;}
+#assignTraining div.tabSelectors{margin:5px 0;}
+#assignTraining div.viewTabSelectors {padding-left:5px;}
+#assignTraining .ui-widget { font-size:1.0em;}
+#assignTraining .ui-tabs .ui-tabs-nav li a {padding:3px 4px;}
+#assignTraining .formItem {margin:10px 0;}
+
+#assignTraining .optionalInputs {margin-top:10px;}
+#assignTraining table.inputs td {padding:3px;}
+#assignTraining td.label {vertical-align:top;font-weight:bold;text-align:right;width:120px;color:#444444;}
+#assignTraining span.label {font-weight:bold;color:#444444;}
+#assignTraining td.inputs {vertical-align:top;}
+#assignTraining .inputWidth {width:320px;}
+#assignTraining textarea {height:100px;width:324px;}
+#assignTraining .helpinfo {background-color:#E5ECF9;padding:5px;vertical-align:top;font-size:.9em;}
+#assignTraining .helpinfo div {margin-left:10px;text-indent:-10px;}
+#assignTraining #submitAssignBtn {margin:15px 0 5px; font-size:1.3em;}
+#assignTraining .assignmentbox {cursor:pointer;border-bottom:1px solid #BBBBBB;padding:5px 1px;}
+#assignTraining .assignmentbox.hover {background-color:#E5ECF9;}
+#assignTraining .assignmentbox .title {font-weight:bold;color:#333333;}
+#assignTraining .assignmentbox .label {font-weight:normal;color:#888888;}
+#assignTraining .assignmentbox .details{margin:2px 0;}
+
+input.dateinput {width:100px;}
+input.timeinput {width:50px;}
+
+.userlist {}
+.userlist .userselection {font-size:.9em;padding:2px 14px 0 0;cursor:pointer;background-image:url(../images/cancel12_sprite.png);
+background-position:right 2px;background-repeat:no-repeat;float:left;clear:left;margin-left:20px;color:#2A5DB0;}
+.userlist .userselection.hover {background-color:#FFDDDD;background-position:right -11px;}
+
+.notifyicon {text-indent:-2323px;height:25px;width:25px;margin-left:5px;}
+.notifyicon.calendar {background:transparent url(../images/cal_icon.png) no-repeat 0 0;}
+.notifyicon.email {background:transparent url(../images/email_icon.png) no-repeat 0 0;}
+
+#assignmentDetails{}
+#assignmentDetails .assigninfo {font-size:.9em;font-style:italic;}
+#assignmentDetails .duedate {font-weight:bold;padding:2px 4px;display:inline;position:relative;cursor:pointer;border:1px solid #FFFFFF;}
+#assignmentDetails .duedate.hover{border:1px dotted #2A5DB0;}
+#assignmentDetails .dateEdit {display:none;}
+#assignmentDetails .dateEdit input {width:80px;}
+#assignmentDetails .fakelink {font-size:.9em;}
+#assignmentDetails .activeStatus{font-size:1.2em;}
+#assignmentDetails .activeStatus span.status{font-weight:bold;}
+#assignmentDetails .assdetails {margin:5px 0;}
+#assignmentDetails .coursetitle{font-weight:bold;font-size:1.6em;}
+#assignmentDetails .selectuserLabel {display:none;}
+#assignmentDetails .addlearners {padding-bottom:10px;}
+#assignmentDetails #addUsersBtn {margin-top:10px;}
+#assignmentDetails .infobox {margin-bottom:10px;}
+#assignmentDetails .helpinfo {background-color:#E5ECF9;padding:5px;vertical-align:top;font-size:.9em;margin-bottom:10px;}
+#assignmentDetails .helpinfo p {margin-bottom:3px;}
+#assignmentDetails .helpinfo div {margin-left:20px;text-indent:-10px;}
+
+
+#assignmentDetails .eventInputs td.label {color:#444444;font-size:.9em;text-align:right;width:80px;vertical-align:top;}
+#assignmentDetails .eventInputs div.label{color:#444444;font-size:.9em;}
+#assignmentDetails .eventInputs input {width:80%;border:1px solid #888888;}
+#assignmentDetails .eventInputs input.smallInput{width:30px;}
+#assignmentDetails .eventInputs textarea {border:1px solid #888888;width:100%;overflow:auto;height:150px;}
+#assignmentDetails .successMsg {font-style:italic;font-size:.9em;color:green;display:none;}
+
+#assignmentDetails .eventInputs.reminders hr{color:#3366CC;}
+.reminderlist {margin:5px 0;}
+.reminderlist .reminder {font-size:1.0em;padding:2px 25px 0 0;cursor:pointer;background-image:url(../images/cancel12_sprite.png);
+background-position:right 2px;background-repeat:no-repeat;float:left;clear:left;margin:3px 5px;color:#2A5DB0;}
+.reminderlist .reminder.hover {background-color:#FFDDDD;background-position:right -11px;}
+
+
+#manageUsers{}
+#manageUsers table.userbox {width:100%;border-collapse:collapse;}
+#manageUsers table.userbox td {border-bottom:1px dotted #666666;}
+#manageUsers .avatar{width:50px;height:50px;}
+#manageUsers div.avatar{border:1px solid;}
+#manageUsers td.edit {padding:10px;text-align:right;vertical-align:middle;}
+#manageUsers .userlistheader {font-size:1.5em;background-color:#DDDDDD;padding:5px;}
+#manageUsers .userlistheader a {font-size:.7em;}
+
+#userDetail .displayDiv {border:1px dotted #FFFFFF;padding:5px;margin-bottom:10px;}
+#userDetail .editform {margin:10px 0;}
+#userDetail .editform table{border-collapse:separate;border-spacing:5px;}
+#userDetail .editform  td.label{text-align:right;color:#333333;}
+#userDetail .displayDiv.hover {border:1px dotted #2A5DB0;}
+#userDetail .displayDiv div {padding:3px;margin:5px 0;}
+#userDetail .displayDiv .name {font-size:2.5em; font-weight:bold;}
+#userDetail .displayDiv .detail {font-size:1.2em; font-weight:bold;}
+#userDetail .displayDiv .detail.minor {font-size:1.0em; font-weight:normal;}
+#userDetail .editUser,#userDetail .cancelEdit {font-size:.9em;margin-left:10px;}
+
+#nonuserlaunch .lftCol{padding:10px;}
+#nonuserlaunch label {color:#888888;font-weight:bold;font-size:1.2em;}
+#nonuserlaunch input {font-size:1.2em;width:250px;}
+#nonuserlaunch input.email {margin:0 5px;}
+#nonuserlaunch .messagediv {color:#FF0000; font-size:.9em;margin-left:60px;margin-top:5px;}
+
+#reports .reglistHead {padding:5px;font-size:1.5em;background-color:#DDDDDD;}
+#reports table.reglist {border-collapse:collapse;}
+#reports table.reglist td {padding-right:3px;padding-left:3px;}
+#reports .assignmentHead td {background-color:#DDDDDD;padding-top:5px;padding-bottom:5px;}
+#reports .assignmentHead td.title {font-weight:bold;}
+#reports .assignmentHead td.duedate {text-align:right;font-weight:bold;}
+#reports .assignmentHead td.createdetails {text-align:right;font-style:italic;font-size:.8em;}
+#reports .reportselector{background-color:#DDDDDD;padding:5px 10px;}
+#reports .reportselector div {padding:3px;}
+#reports .reportselector div.active a {text-decoration:none;color:#000000;font-weight:bold;}
+#reports .reportselector hr {color:#3366CC;}
+#reports .infobox {margin-top:15px;}
+
+.pager {font-size: 1.5em;position: relative;text-align: center;width: 100%;}
+.pager ul {float: left;position: relative;}
+.pager li {border: 1px solid #3366CC;float: left;list-style: none;margin: 0px 3px 0px 0px;padding: 5px 5px 5px 5px;}
+.pager li.active {background-color: #E5ECF9;background-image: none;border-width:2px;font-weight:bold;}
+.pager li:hover {background-color: #E5ECF9;}
+.pager.reverseColor li.active {background-color: #FFFFFF;}
+.pager.reverseColor li:hover {background-color: #FFFFFF;}
+
+.pager li a {text-decoration: none;color: black;float: left;margin-right: 1px;padding: 1px;}
+
+
+#footerContainer {
+clear:both;
+color:#666666;
+margin-top:20px;
+text-align:center;
+}
+
+.gadget {font-size:12px;}
+.gadget.gm {padding:3px;}
+.gadget .logininfo {text-align:right;font-size:.9em;}
+.gadget .regDiv {margin:5px 0;padding:2px 0 3px;border-bottom:1px solid #E6E6E6;}
+.gadget .launchdiv {float:right;text-align:right;font-size:1.2em;}
+.gadget.gm .launchdiv {float:none;text-align:left;font-size:1.0em;margin:3px 0;}
+.gadget .resultTable {font-size:.9em;margin:5px;background-color:#E6E6E6;border-collapse:separate;border-spacing:2px;}
+.gadget .resultTable td {padding:0 2px;}

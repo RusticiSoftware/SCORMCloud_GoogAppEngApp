@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Dashboard
+{% endblock %}
+
+{% block bannertitle %}
+	SCORM Cloud Dashboard
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript" src="http://cloud.scorm.com/Reportage/scripts/reportage.combined.nojquery.js"></script>
+<link rel="stylesheet" href="http://cloud.scorm.com/Reportage/css/reportage.combined.css" type="text/css" media="screen" />
+
+{% endblock %}
+
+{% block pagecontent %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.navlinks a.dashboard').replaceWith("<span class='active'>Dashboard</span>");
+	
+});
+
+</script>
+<div id="startContent" class="scormcloudContent">
+	<div class="col50">
+		<div class="lftCol">
+		<div class="startText">
+			{% ifnotequal startlogo None  %}
+			<div class='logo'>
+				<img src="{{ startlogo|safe }}"/>	
+			</div>
+			{% endifnotequal %}
+			{% ifnotequal starttext None  %}
+				{{ starttext|safe }}
+			{% endifnotequal %}
+		</div>
+		
+		<div class="infobox">
+			The SCORM Cloud App for Google Apps is a training delivery platform for Google Apps Domains.  Harnessing the power of the SCORM Engine via the SCORM Cloud, this application provides the most complete SCORM course support available combined with the convenience of integration directly with your domain calendar and contacts, and email.
+		</div>
+		
+		</div>
+	</div>		
+	<div class="col50">
+		<div class="coursebox rtCol">
+			<div class="coursebox-title">
+				Your Recent Training
+			</div>
+			<div class="coursebox-content">
+				{% if hasregs %}
+
+					{% for reg in regs %}
+					<table class="courseTable">
+					<tr>
+					<td><div class='newcourse'>
+							<strong><a href="/course/detail/{{ reg.courseid }}">{{ reg.coursetitle }}</a></strong>
+						
+							<br>
+							<i>Assigned {{ reg.createddate|date }}</i>
+							{% ifnotequal reg.assignment.duedate None  %}
+								&nbsp;&nbsp;<i>Due {{ reg.assignment.duedate|date:"M d, Y H:i" }}</i>
+							{% endifnotequal %}
+							<br>
+							{% if reg.assignment.active %}
+							<a href="/registration/launch/{{ reg.regid }}">Launch Training Now</a>
+							{% else %}
+							Currently Inactive
+							{% endif %}
+						</div>
+					</td>
+					<td class="resultsCell">
+
+						<table class="resultTable">
+							<tr>
+							{% ifnotequal reg.completion None  %}
+							<td class="results" >
+								<div class="statusDiv">
+									<span class="statLabel">Completion:</span> <span class=" statusVal {{ reg.completion }}">{{ reg.completion }}</span>
+								</div>
+								<div class="statusDiv">
+									<span class="statLabel">Satisfaction:</span> <span class=" statusVal {{ reg.satisfaction }}">{{ reg.satisfaction }}</span>
+								</div>
+
+
+							</td>
+							<td class="score">
+								{% ifnotequal reg.score 'unknown' %}
+									{% ifnotequal reg.score None %}
+									<div class="statusDiv">
+										<span class="statLabel">Score:</span>
+										<span class="statusVal">{{ reg.score }}%</span>
+									</div>
+									{% endifnotequal %}
+								{% endifnotequal %}
+								{% ifnotequal reg.timespent None %}
+									<div class="statusDiv">
+										<span class="statLabel">Total Time:</span>
+										<span class="statusVal">{{ reg.timespent|sectodur }}</span>
+									</div>
+								{% endifnotequal %}
+							</td>
+							{% else %}
+							<td class="notstarted">Not Started</td>
+						
+							{% endifnotequal %}
+							</tr>
+						</table>
+					
+					</td>
+					</tr>
+					</table>
+					<hr>
+					{% endfor %}
+				{% else %}
+				<div class="nodata">You have not taken any training.</div>
+				{% endif %}
+				
+			</div>
+		</div>
+
+	</div>		
+	<div class="col2">
+		
+		
+	</div>
+	
+	<div class="clear"></div>
+	
+	
+</div>
+{% endblock %}

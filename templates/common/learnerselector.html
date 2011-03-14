@@ -1,0 +1,141 @@
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.userselector').change(function(){
+		var opt = $(this).find('option:selected');
+		if (opt.val() != ''){
+			var newHtml = $('.templateholder .userselection').clone();
+			newHtml.attr('ctype',$(this).attr('name'));
+			newHtml.attr('ckey',opt.val())
+			if (opt.attr('fname') != undefined)
+				newHtml.attr('fname',opt.attr('fname'))
+			if (opt.attr('lname') != undefined)
+				newHtml.attr('lname',opt.attr('lname'))
+			newHtml.text(opt.text());
+			newHtml.hover(function(){$(this).toggleClass('hover');},function(){$(this).toggleClass('hover');});
+			newHtml.click(function(){$(this).remove();});
+			$('.userlist').prepend(newHtml);
+		}
+		
+	});
+	
+	$('#adduserbtn').click(function(){
+		var fname = $('#ufirstname').val();
+		var lname = $('#ulastname').val();
+		var email = $('#uemail').val();
+		if (fname == '' || lname =='' || email == ''){
+			$('.badInputMsg.userinput').show();
+			return;
+		} else {
+			$('.badInputMsg.userinput').hide();
+		}
+		var newHtml = $('.templateholder .userselection').clone();
+		newHtml.attr('ctype','newuser');
+		newHtml.attr('ckey',email)
+		newHtml.attr('fname',fname)
+		newHtml.attr('lname',lname)
+		newHtml.text(fname + ' ' + lname + ' (' + email + ')');
+		newHtml.hover(function(){$(this).toggleClass('hover');},function(){$(this).toggleClass('hover');});
+		newHtml.click(function(){$(this).remove();});
+		$('.userlist').prepend(newHtml);
+		$('#ufirstname').val('');
+		$('#ulastname').val('');
+		$('#uemail').val('');
+	});
+
+
+});
+</script>
+
+<div class="tabSelectors">
+	<strong class="selectuserLabel">Select User(s): </strong>
+	<div id="tabs">
+		<ul>
+			{% ifnotequal appusers None %}
+			<li><a href="#tabs-1">Active Users</a></li>
+			{% endifnotequal %}
+			{% ifnotequal domainusers None %}
+			<li><a href="#tabs-2">Domain Users</a></li>
+			{% endifnotequal %}
+			{% ifnotequal contacts None %}
+			<li><a href="#tabs-3">Your Contacts</a></li>
+			{% endifnotequal %}
+			{% ifnotequal groups None %}
+			<li><a href="#tabs-4">Your Contact Groups</a></li>
+			{% endifnotequal %}
+			<li><a href="#tabs-5">Other Users</a></li>
+		</ul>
+		{% ifnotequal appusers None %}
+		<div id="tabs-1">
+			<div>Select a user to add to the assignment.</div>
+			<select name='appuser' class="userselector">
+				<option value="">Select a User</option>
+				{% for u in appusers %}
+					<option value="{{u.key}}">{{u.fname}} {{u.lname}}  ({{u.email}})</option>
+				{% endfor %}
+			</select>
+		</div>
+		{% endifnotequal %}
+		{% ifnotequal domainusers None %}
+		<div id="tabs-2">
+			<div>Select a user to add to the assignment.</div>
+			<select name='domainuser' class="userselector">
+				<option value="">Select a User</option>
+				{% for key,value in domainusers.items %}
+					<option value="{{key}}" fname="{{value.firstname}}" lname="{{value.lastname}}">{{value.name}}  ({{key}})</option>
+				{% endfor %}
+			</select>
+		</div>
+		{% endifnotequal %}
+		{% ifnotequal contacts None %}
+		<div id="tabs-3">
+			<div>Select a user to add to the assignment.</div>
+			<select name='contactuser' class="userselector">
+				<option value="">Select a User</option>
+				{% for key,value in contacts.items %}
+					<option value="{{key}}" fname="{{value.firstname}}" lname="{{value.lastname}}">{{value.name}}  ({{key}})</option>
+				{% endfor %}
+			</select>
+		</div>
+		{% endifnotequal %}
+		{% ifnotequal groups None %}
+		<div id="tabs-4">
+			<div>Select a Group to add to the assignment.</div>
+			<select name='contactgroup' class="userselector">
+				<option value="">Select a Group</option>
+				{% for group in groups %}
+					<option value="{{group.id}}">{{group.name}}</option>
+				{% endfor %}
+			</select>
+		</div>
+		{% endifnotequal %}
+		<div id="tabs-5">
+			<table>
+				<tr>
+					<td><strong>First Name: </strong></td>
+					<td><input type="text" id="ufirstname"/></td>
+				</tr>
+				<tr>
+					<td><strong>Last Name: </strong></td>
+					<td><input type="text" id="ulastname"/></td>
+				</tr>
+				<tr>
+					<td><strong>Email: </strong></td>
+					<td><input type="text" id="uemail"/></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input id="adduserbtn" type="button" value="Add User"></td>
+				</tr>
+			</table>
+			<div class="badInputMsg userinput">Please provide a first name, last name, and email for new learners.</div>
+		</div>
+
+
+	</div>
+</div>
+
+<strong>Selected User(s): </strong>
+<div class="userlist">
+
+	<div class="clear"></div>
+</div>

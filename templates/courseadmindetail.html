@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Course Detail
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript" src="http://cloud.scorm.com/Reportage/scripts/reportage.combined.nojquery.js"></script>
+<link rel="stylesheet" href="http://cloud.scorm.com/Reportage/css/reportage.combined.css" type="text/css" media="screen" />
+
+{% endblock %}
+
+{% block bannertitle %}
+	Course Details (Admin View)
+{% endblock %}
+
+{% block pagecontent %}
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	
+});
+
+
+
+</script>
+
+<div id="courseContent" class="scormcloudContent">
+	
+	<div class="col70">
+		<div class="lftCol">
+			<div class="right utils">
+				<div>
+					<div><span class=" fakelink viewtraininghistory course" key='{{ course.courseid }}' >Results Report</span></div>
+					{% if not course.orphaned %}
+					<div><a href="/course/preview/{{ course.courseid }}?redirecturl={{currenturi}}">Preview</a></div>
+					{% endif %}
+					<div><a href="/course/update/{{ course.courseid }}">Edit</a></div>
+					<div><a href="/course/delete/{{ course.courseid }}" 
+					onclick="return confirm('Are you sure you want to delete this course? This will also delete ALL assignments and registrations for this course and cannot be undone.');">
+					Delete</a></div>
+					
+				</div>
+			</div>
+			<h1>{{ course.title }}</h1>
+			<div class="description">{{course.descriptiontext}}</div>
+			{% ifnotequal course.duration "unknown" %}
+			<div class="description">Expected Duration: {{course.duration|sectodur:"long"}}</div>
+			{% endifnotequal %}
+			<div class="tags">Tags : <span class="tag">{{ tags }}</span></div>
+		</div>
+	</div>
+
+	<div class="col30">
+		<div class="rtCol">
+			<div class="infobox">
+			 	<p>Clicking <b>Results Report</b> will open a window with a reportage report of all registrations for this course that have been started.</p>
+				<br/>
+				<p>Clicking <b>Delete</b> will delete the course and all associated assignments and registrations (training).</p>
+				<br/>
+				<p><b>Expected Duration</b> comes from the course manifest metadata.</p>
+			</div>
+
+		</div>
+	</div>
+
+	
+
+	<div class="clear"></div>
+	{% if istrainer %}
+	
+	<div class="col70">
+		<div class="lftCol">
+	
+			<div class="coursebox">
+				<div class="coursebox-title">Course Registrations ({{userregs|length}})</div>
+				<div class="coursebox-content">
+					<table class="reglist fullWidth">
+						<tr>
+							<td></td>
+							<td></td>
+							<td class="colLabel">Completion</td>
+							<td class="colLabel">Satisfaction</td>
+							<td class="colLabel">Score</td>
+							<td class="colLabel">Total Time</td>
+						</tr>
+					{% for userreg in userregs %}
+						<tr class="reg">
+							<td><strong><a href="/user/{{userreg.user.key|safe}}">{{userreg.user.fname}} {{userreg.user.lname}}</a></strong></td>
+							<td>{{userreg.user.email}}</td>
+							<td class="resultinfo"><span class=" statusVal {{ userreg.reg.completion }}">{{userreg.reg.completion}}<span></td>
+							<td class="resultinfo"><span class=" statusVal {{ userreg.reg.satisfaction }}">{{userreg.reg.satisfaction}}</td>
+							<td class="resultinfo">
+								{% ifnotequal userreg.reg.score None %}
+									{% ifnotequal userreg.reg.score "unknown" %}
+									<span class="statusVal">{{ userreg.reg.score }}%</span>
+									{% else %}
+										<span class="statusVal unknown">No Score</span>
+									{% endifnotequal %}
+								{% else %}
+									<span class="statusVal unknown">No Score</span>
+								{% endifnotequal %}
+							</td>
+							<td class="resultinfo">
+								{% ifnotequal userreg.reg.timespent None %}
+									<div class="statusDiv">
+										<span class="statusVal">{{ userreg.reg.timespent|sectodur }}</span>
+									</div>
+								{% else %}
+									<div class="statusDiv">
+										<span class="statusVal unknown">Not Started</span>
+									</div>
+								{% endifnotequal %}
+							</td class="resultinfo">
+							<td class="resultinfo">
+								<div><span class=" fakelink viewtraininghistory reg" key='{{ userreg.reg.regid }}' >View Report</span></div>
+							</td>
+						</tr>
+					{% endfor %}
+					</table>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	
+	<div class="col30">
+		<div class="rtCol">
+			<div class="infobox">
+				<p>Clicking <b>View Report</b> will open a window with a reportage report of for this user's training in this course.</p>
+			</div>
+			
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+	{% endif %}
+	
+{% endblock %}

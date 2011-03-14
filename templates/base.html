@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{% block title %}Generic Page{% endblock %}</title>
+	<link type="text/css" href="/stylesheets/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
+	<link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <script type="text/javascript" src="/scripts/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="/scripts/jquery-ui-1.8.4.custom.min.js"></script>
+	<script type="text/javascript" src="/scripts/scormcloud_gae.js"></script>
+	<script type="text/javascript" src="/scripts/date.format.js"></script>
+	{% block extrahead %}{% endblock %}
+</head>
+<body>
+	<div id="actionstatus">Loading...</div>
+	<div class="nodisplay templateholder">
+		<div class="userselection" title="Click to remove this selection."></div>
+		<div class="messageDialog"></div>
+		<div class="messagebox" corners="10" >
+			<div class="cancelmsg" hover="hover" key="">clear</div>
+			<div class="message"></div>
+		</div>
+	</div>
+	<div id="userMessageWrapper">
+		{% for msg in usermessages %}
+		<div class="messagebox {{msg.msgtype}}" corners="10" >
+			<div class="cancelmsg" hover="hover" key="{{msg.key|safe}}">clear</div>
+			<div class="message">
+			{{msg.message|safe}}
+			</div>
+		</div>
+		{% endfor %}
+		<div class="clear"></div>
+	</div>
+	<div class="gappsheader">	
+		<div id="userheader">
+			<span>
+				<strong>{{ useremail }}</strong>
+				&nbsp;|&nbsp;
+				<a id="settings" href="/usersettings">My Settings</a>
+				{% if isdomainadmin %}
+				&nbsp;|&nbsp;
+				<a id="settings" href="/admin/settings">App Settings</a>
+				{% endif %}
+				<!--&nbsp;|&nbsp;
+				<a id="help" href="/help">Help</a>-->
+				&nbsp;|&nbsp;
+				<a id="signout" href="{{ logouturl }}">Sign Out</a>
+			</span>
+		</div>
+	</div>	
+	<div id="logo">
+		SCORM Cloud App
+	</div>
+
+		
+	<div class="linedivider"></div>
+	<div id="headerContainer">
+		<div id="">
+			<table>
+				<tr>
+					<td>
+						<div id="siteheadtitle">
+							{{ sitetitle|noNone }}
+						</div>
+					</td>
+					<td>
+						{% block headerblock %}{% endblock %}
+						
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div id="container">
+		<div id="topnav">
+			<h1>{% block bannertitle %}Generic Page{% endblock %}</h1>
+			{% block bannermenu %}
+			<ul class="navlinks">
+				<!--<li><a class="dashboard" href="/">Dashboard</a></li>-->
+				{% if iscc %}
+				<li><a class="mytraining" href="/">My Training</a></li>
+				<li><a class="allcourses" href="/course/list">Courses</a></li>
+				{% endif %}
+				{% if istrainer %}
+				<li><a class="newassign" href="/registration/assign">Assignments</a></li>
+				<li><a class="reports" href="/reports">Reports</a></li>		
+				{% endif %}
+				{% if isadmin %}
+				<li><a class="users" href="/admin/user/list">Users</a></li>
+				{% endif %}
+			</ul>
+			{% endblock %}
+			<div class="clear"></div>
+		</div>
+		{% block pagecontent %}
+
+		{% endblock %}
+		
+	</div>
+	<div id="footerContainer">
+		<div>
+			<p class="rusticicopyright">© 2008-2010 Rustici Software</p>
+				<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+				alt="Powered by Google App Engine" />
+		</div>
+	</div>
+</body>
+</html>

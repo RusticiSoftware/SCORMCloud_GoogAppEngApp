@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Registration Report
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript" src="/scripts/jquery.xmldom.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+		var output = "";
+		$.xmlDOM('{{ regxml }}')
+		    .find('registrationreport > activity')
+		        .each(function() {
+		            output += displayActivity($(this),0,0);
+		        });
+		$('#ReportOutput').html(output);
+    });
+
+	function displayActivity(actNode, actNum, leftMargin){
+		title = actNode.find('title:first').text();
+		satisfied = getSatVal(actNode.find('progressstatus').text(),actNode.find('satisfied').text());
+		completed = getComplVal(actNode.find('attemptprogressstatus').text(),actNode.find('completed').text());
+		attempts = actNode.find('attempts:first').text();
+		suspended = actNode.find('suspended').text();
+
+		output = "<div class='activity'>";
+
+		output += "<div class='coursetitle' style='margin-left:"+leftMargin+"px;'>"+title+"</div>";
+		output += "<div class='satisfaction " + satisfied + "'>" + satisfied + "</div>";
+		output += "<div class='completion " + completed + "'>" + completed + "</div>";
+		output += "<div class='attempts'>" + attempts + "</div>";
+		
+
+		
+
+		output += '<div class="div_detail_arrows" onclick=\'$(this).parent().find("div.activityData").toggle().parent().css("background-color",$(this).parent().find("div.activityData").is(":hidden") ? "#FFFFFF" : "#CEE4F2");'+
+			'$("img",this).css("right",$(this).parent().find("div.activityData").is(":hidden") ? "-22px" : "0px");\'>'+
+			'<img class="img_detail_arrows" src="/images/up_down_arrows.gif" /></div>';
+
+		output += "<div class='activityData' >";
+		output += "<table class='table_details'><tr><td class='td_objectives'>";
+	
+		actNode.find('objectives')
+				.each(function() {
+					output += displayObjectives($(this));
+				});
+
+		output += "</td><td class='td_runtime'>";
+
+		actNode.find('runtime').each(function(){
+			output += displayRuntime($(this),actNum);
+			});
+			
+		output += "</td></tr></table></div>";
+		output += "</div>";
+		
+		var newActNum = 0;
+		actNode.find('activity')
+		        .each(function() {
+		            newActNum += 1;
+					output += displayActivity($(this) ,actNum + "" + newActNum,leftMargin + 15);
+		        });
+			
+		return output;
+	}
+	
+	function displayObjectives(objectives){
+		var output = "";
+		output += "<div class='actObjectiveData'>";
+
+		output += "<div class='detailsTopLabel'>Activity Objectives</div>";
+		output += "<table class='table_details'>";
+		
+		objectives.find('objective').each(function() {
+			id = $(this).attr("id");
+			measureStat = $(this).find('measurestatus').text();
+			normMeasure = $(this).find('normalizedmeasure').text();
+			progressstatus = $(this).find('progressstatus').text();
+			satisfiedstatus = $(this).find('satisfiedstatus').text();
+
+			output += "<tr><td><span class='actDetailsPropLbl'>Objective Id: </span></td><td><span class='actDetailsPropVal'>" + id + "</span></td></tr>";
+			output += "<tr><td><span class='actDetailsPropLbl margin5'>Measure Status: </span></td><td><span class='actDetailsPropVal'>" + measureStat + "</span></td></tr>";
+			output += "<tr><td><span class='actDetailsPropLbl margin5'>Normalized Measure: </span></td><td><span class='actDetailsPropVal'>" + normMeasure + "</span></td></tr>";
+			output += "<tr><td><span class='actDetailsPropLbl margin5'>Progress Status: </span></td><td><span class='actDetailsPropVal'>" + progressstatus + "</span></td></tr>";
+			output += "<tr><td><span class='actDetailsPropLbl margin5'>Satisfied Status: </span></td><td><span class='actDetailsPropVal'>" + satisfiedstatus + "</span></td></tr>";
+			output += "<tr class='tr_space'><td></td><td></td></tr>";
+			});
+			
+		output += "</table>";
+		output += "</div>";
+		
+		return output;
+
+	}
+	
+	function displayRuntime(rt,actNum){
+		var output = "";
+		output += "<div class='actRuntimeData'>";
+		output += "<table class='table_details'><tr>";
+
+		if(rt.find('objectives > objective').length > 0){
+			output += "<td class='td_runtimeObjectives'>";
+			output += "<div class='detailsTopLabel'>Runtime Objectives</div>";
+			output += "<table class='table_details'>";
+			rt.find('objectives > objective').each(function(){
+				
+				output += "<tr><td><span class='actDetailsPropLbl'>Objective Id:</span></td><td><span class='actDetailsPropVal'>" + $(this).attr('id') + "</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Scaled Score:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('score_scaled').text()+"</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Minimum Score:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('score_min').text()+"</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Raw Score:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('score_raw').text()+"</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Maximum Score:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('score_max').text()+"</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Success Status:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('success_status').text()+"</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Completion Status:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('completion_status').text()+"</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Progress Measure:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('progress_measure').text()+"</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Description:</span></td><td><span class='actDetailsPropVal'>"+$(this).find('description').text()+"</span></td></tr>";
+				output += "<tr class='tr_space'><td></td><td></td></tr>";
+
+			});
+			output += "</table><br/>";
+			output += "</td>";
+
+		};
+
+		output += "<td class='td_runtimeDetails'>";
+
+		output += "<div class='detailsTopLabel'>Activity Runtime Data</div>";
+
+		output += "<table class='table_details'>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Completion Status: </span></td><td><span class='actDetailsPropVal'>"+rt.find('completion_status').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Credit: </span></td><td><span class='actDetailsPropVal'>"+rt.find('credit').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Entry: </span></td><td><span class='actDetailsPropVal'>"+rt.find('entry').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Exit: </span></td><td><span class='actDetailsPropVal'>"+rt.find('exit').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Learner Preferences: </span></td><td></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl margin5'>Audio Level: </span></td><td><span class='actDetailsPropVal'>"+rt.find('audio_level').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl margin5'>Language: </span></td><td><span class='actDetailsPropVal'>"+rt.find('language').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl margin5'>Delivery Speed: </span></td><td><span class='actDetailsPropVal'>"+rt.find('delivery_speed').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl margin5'>Audio Captioning: </span></td><td><span class='actDetailsPropVal'>"+rt.find('audio_captioning').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Location: </span></td><td><span class='actDetailsPropVal'>"+rt.find('location').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Mode: </span></td><td><span class='actDetailsPropVal'>"+rt.find('mode').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Progress Measure: </span></td><td><span class='actDetailsPropVal'>"+rt.find('progress_measure').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Score Scaled: </span></td><td><span class='actDetailsPropVal'>"+rt.find('score_scaled').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Score Raw: </span></td><td><span class='actDetailsPropVal'>"+rt.find('score_raw').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Score Minimum: </span></td><td><span class='actDetailsPropVal'>"+rt.find('score_min').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Score Maximum: </span></td><td><span class='actDetailsPropVal'>"+rt.find('score_max').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Total Time: </span></td><td><span class='actDetailsPropVal'>"+rt.find('total_time').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Time Tracked: </span></td><td><span class='actDetailsPropVal'>"+rt.find('timetracked').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Success Status: </span></td><td><span class='actDetailsPropVal'>"+rt.find('success_status').text()+"</span></td></tr>";
+		output += "</table>";
+
+		output += "</td>";
+
+
+		output += "<td>";
+
+		output += "<div class='detailsTopLabel'>Suspend Data</div>";
+		output += "<div class='actDetailsProp'><span class='actDetailsPropVal'>"+rt.find('suspend_data').text()+"</span></div>";
+		output += "<br/>";
+
+		output += "<div class='detailsTopLabel'>Static Runtime Data</div>";
+		output += "<table class='table_details'>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Completion Threshold:</span></td><td><span class='actDetailsPropVal'>"+rt.find('static > completion_threshold').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Launch Data:</span></td><td><span class='actDetailsPropVal'>"+rt.find('static > launch_data').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Learner Id:</span></td><td><span class='actDetailsPropVal'>"+rt.find('static > learner_id').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Learner Name:</span></td><td><span class='actDetailsPropVal'>"+rt.find('static > learner_name').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Maximum Time Allowed:</span></td><td><span class='actDetailsPropVal'>"+rt.find('static > max_time_allowed').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Scaled Passing Score:</span></td><td><span class='actDetailsPropVal'>"+rt.find('static > scaled_passing_score').text()+"</span></td></tr>";
+		output += "<tr><td><span class='actDetailsPropLbl'>Time Limit Action:</span></td><td><span class='actDetailsPropVal'>"+rt.find('static > time_limit_action').text()+"</span></td></tr>";
+		output += "</table><br/>";
+
+		if (rt.find('interactions > interaction').length > 0){
+			output += '<div class="detailsTopLabel">Interactions<div id="interactionArrowDiv" class="sub_detail_arrows" '+
+				'onclick=\'$("#interactionsTable'+actNum+'").toggle(); $("img",this).css("right",$("#interactionsTable'+actNum+'").is(":hidden") ? "-16px" : "0px"); \' >'+
+				'<img id="interaction_arrows" class="img_detail_arrows" src="/images/up_down_arrows_sm.gif" />'+
+				'</div></div>';
+			output += "<table id='interactionsTable$actNum' class='interactionsTable table_details'>";
+			rt.find('interactions > interaction').each(function(){
+				output += "<tr><td class='intLblWidth'><span class='actDetailsPropLbl'>Interaction Id:</span></td><td><span class='actDetailsPropVal'>" + $(this).attr('id') + "</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Type:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('type').text() + "</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Timestamp:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('timestamp').text() + "</span></td></tr>";
+				output += "<tr><td colspan='2'><span class='actDetailsPropLbl margin5'>Objectives:</span></td><td></td></tr>";
+
+				$(this).find('objectives > objective').each(function(){
+					output += "<tr><td><span class='actDetailsPropLbl margin20'>Objective Id:</span></td><td><span class='actDetailsPropVal'>" + $(this).attr('id') + "</span></td></tr>";
+				});
+
+				output += "<tr><td colspan='2'><span class='actDetailsPropLbl margin5'>Correct Responses:</span></td></tr>";
+
+				$(this).find('correct_responses > response').each(function(){
+					output += "<tr><td><span class='actDetailsPropLbl margin20'>Response Id:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('id') + "</span></td></tr>";
+				});
+				
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Weighting:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('weighting').text() + "</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Learner Response:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('learner_response').text() + "</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Result:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('result').text() + "</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Latency:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('latency').text() + "</span></td></tr>";
+				output += "<tr><td><span class='actDetailsPropLbl margin5'>Description:</span></td><td><span class='actDetailsPropVal'>" + $(this).find('description').text() + "</span></td></tr>";
+				output += "<tr class='tr_space'><td colspan='2'></td></tr>";
+				output += "<tr><td class='dotted' colspan='2'></td></tr>";
+				output += "<tr class='tr_space'><td colspan='2'></td></tr>";
+			});
+			output += "</table><br/>";
+		}
+
+
+		if (rt.find('comments_from_learner > comment').length > 0) {
+			output += '<div class="detailsTopLabel">Comments From Learner<div id="learnerCommentArrowDiv" class="sub_detail_arrows comment_arrow" '+
+				'onclick=\'$("#learnerComments'+actNum+'").toggle(); $("img",this).css("right",$("#learnerComments'+actNum+'").is(":hidden") ? "-16px" : "0px");\' >'+
+				'<img id="learnerCommentArrows" class="img_detail_arrows" src="/images/up_down_arrows_sm.gif" />'+
+				'</div></div>';
+			output += "<div id='learnerComments$actNum' class='learnerComments'>";
+			rt.find('comments_from_learner > comment').each(function(){
+				output += "<div class='commentDetail'><span class='actDetailsPropLbl bold'>Date: </span><span class='actDetailsPropVal'>" + $(this).find('date_time').text() + "</span></div>";
+				output += "<div class='commentDetail'><span class='actDetailsPropLbl bold'>Location: </span><span class='actDetailsPropVal'>" + $(this).find('location').text() + "</span></div>";
+				output += "<div class='commentDetail'><span class='actDetailsPropLbl bold'>Comment: </span><span class='actDetailsPropVal'>" + $(this).find('value').text() + "</span></div>";
+				output += "<br/>";
+			});
+
+			output += "</div><br/>";
+		}
+
+		//output += "<br/>";
+		if (rt.find('comments_from_lms > comment').length > 0) {
+			output += '<div class="detailsTopLabel">Comments From LMS<div id="learnerCommentArrowDiv" class="sub_detail_arrows comment_arrow" '+
+				'onclick=\'$("#lmsComments'+actNum+'").toggle(); $("img",this).css("right",$("#lmsComments'+actNum+'").is(":hidden") ? "-16px" : "0px");\' >'+
+				'<img id="lmsCommentArrows" class="img_detail_arrows" src="/images/up_down_arrows_sm.gif" />'+
+				'</div></div>';
+			output += "<div id='lmsComments$actNum' class='lmsComments'>";
+			rt.find('comments_from_lms > comment').each(function(){
+				output += "<div class='commentDetail'><span class='actDetailsPropLbl bold'>Date: </span><span class='actDetailsPropVal'>" + $(this).find('date_time').text() + "</span></div>";
+				output += "<div class='commentDetail'><span class='actDetailsPropLbl bold'>Location: </span><span class='actDetailsPropVal'>" + $(this).find('location').text() + "</span></div>";
+				output += "<div class='commentDetail'><span class='actDetailsPropLbl bold'>Comment: </span><span class='actDetailsPropVal'>" + $(this).find('value').text() + "</span></div>";
+				output += "<br/>";
+			});
+			output += "</div><br/>";
+		}
+
+		output += "</td>";
+		output += "</tr></table>";
+
+		output += '</div>';
+		
+		return output;
+
+	}
+	
+	
+	
+	
+	function getSatVal(satStat,satVal){
+		if (satStat == 'true'){
+			if (satVal == 'true'){
+				return "passed";
+			} else {
+				return "failed";
+			}
+
+		} else {
+			return "unknown";
+		}
+	}
+
+	function getComplVal(comStat,comVal){
+		if (comStat == 'true'){
+			if (comVal == 'true'){
+				return "completed";
+			} else {
+				return "incomplete";
+			}
+
+		} else {
+			return "unknown";
+		}	
+	}
+    </script>
+
+<style>
+
+#column_headers {position:relative; font-weight:bold; border-bottom:1px solid #4171B5; padding: 3px 0px; margin-top:10px;}
+.headertitle {position:relative; width:300px; font-size:medium;}
+.headersatisfied {position:absolute; top:3px; left:350px; font-size:medium;}
+.headercompleted {position:absolute; top:3px; left:450px; font-size:medium;}
+.headerattempts {position:absolute; top:3px; left:550px; font-size:medium;}
+.headersuspended {position:absolute; top:3px; left:625px; font-size:medium;}
+
+.activityReportHeader {font-size:1.2em; position:relative; text-align:left;}
+.launchHistoryLink {position:absolute; right:25px; top:0px;}
+.launchHistoryLink img {margin-left:10px; vertical-align:top;}
+
+.activity{position:relative; width:100%; border-bottom:1px dotted #4171B5; padding-top:5px; margin-bottom:2px;}
+.activityData{width:90%; display:none; border-top:1px dotted #4171B5; padding:5px 20px;}
+
+
+.coursetitle {position:relative; width:300px;height:20px; font-size:1.00em;}
+.satisfaction {position:absolute; top:5px; left:350px; font-size:small;}
+.completion {position:absolute; top:5px; left:450px; font-size:small;}
+.attempts {position:absolute; top:5px; left:550px; font-size:small;}
+.suspended {position:absolute; top:5px; left:625px; font-size:small;}
+
+
+.div_detail_arrows {position:absolute; top:3px; right:25px; width:22px; height:22px; overflow:hidden; cursor:pointer;}
+.img_detail_arrows {position:absolute; }
+.detailsTopLabel{font-size:1.00em; font-weight:bold; position: relative; margin-bottom:5px; width:98%; padding-left:3px; }
+
+
+.table_details {border-spacing:0; width:100%; padding:5;}
+table.table_details td {vertical-align:top;}
+.td_objectives {width:250px; padding-right:2px; border:1 }
+.td_runtimeDetails {width:250px;}
+.td_runtimeObjectives {width:250px;}
+.tr_space {height:10px;}
+td.dotted {border-bottom:1px dotted #4171B5;}
+td.intLblWidth {width:110px;}
+.actObjectiveData {position: relative; }
+.actRuntimeData {position:relative;}
+
+.interactionsTable {display:none;}
+.sub_detail_arrows {margin-left:5px; width:16px; height:16px; overflow:hidden; position:absolute; left:90px; top:1px; cursor:pointer;}
+.comment_arrow {left:190px;}
+.learnerComments {display:block;}
+.lmsComments {display:block;}
+
+.actDetailsPropLbl{font-weight:lighter; font-size:.80em; margin: 5 5 5 5;}
+.actDetailsPropVal{font-weight:bold; font-size:.80em; margin: 5 5 5 5;}
+
+.margin5 {margin-left:5px;}
+.margin20 {margin-left:10px;}
+.bold {font-weight:bold;}
+.hidden {visibility:hidden;}
+
+.passed {color:green;}
+.failed {color:red;}
+.completed {color:green;}
+.incomplete {color:red;}
+
+</style>
+{% endblock %}
+
+{% block bannertitle %}
+	Registration Report
+{% endblock %}
+
+{% block bannermenu %}
+	<ul>
+		<li><a href="/">Dashboard</a></li>
+		<li><a href="/mycourses">My Courses</a></li>
+		<li><a href="/course/list">All Courses</a></li>
+		{% if isadmin %}
+		<li><a href="/course/upload">Upload New Course</a></li>
+		{% endif %}
+	</ul>
+{% endblock %}
+
+{% block pagecontent %}
+<br><br>
+<div class="statusbox">
+	<br><br>
+	<div class='activityReportHeader'>
+		<div class="launchHistoryLink">
+			<a href="/registration/lhreport/{{ regid }}">Launch History Report</a>
+		</div>
+	</div>
+	<div id="column_headers">
+		<div class='headertitle' >Learning Object Name</div>
+		<div class='headersatisfied'>Satisfaction</div>
+		<div class='headercompleted'>Completion</div>
+		<div class='headerattempts'>Attempts</div>
+		<div class='headersuspended'>Suspended</div>
+	</div>
+	<div id="ReportOutput"></div>
+	<br><br><br>
+</div>
+{% endblock %}

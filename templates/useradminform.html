@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: User Update
+{% endblock %}
+
+{% block bannertitle %}
+	SCORM Cloud User Update
+{% endblock %}
+
+
+{% block pagecontent %}
+<div id="settingsContent" class="scormcloudContent">
+	<div class="entry" >
+		<br>
+		<br>
+		<div class="statusbox">
+			<div class="statusbox-content">
+				<br><br>
+				<form action="/useradminaction" method="post" enctype="multipart/form-data">
+				<input type="hidden" id="email" name="email" value="{{ userprofile.email }}" />
+				Email : {{ userprofile.email }}
+				<br><br>
+				First Name : <input type="text" id="fname" name="fname" value="{{ userprofile.fname }}" size="50" />
+				<br><br>
+				Last Name : <input type="text" id="lname" name="lname" value="{{ userprofile.lname }}" size="50" />
+				<br><br>
+				{% if isadmin %}
+				Access Level : 
+				<select id="accesslevel" name="accesslevel">
+					<option value="0">User</option>
+					{% ifequal userprofile.accesslevel '5' %}
+					<option value="5" selected>Content Creator</option>
+					{% else %}
+					<option value="5">Content Creator</option>
+					{% endifequal %}
+					{% ifequal userprofile.accesslevel "6" %}
+					<option value="6" selected>Trainer</option>
+					{% else %}
+					<option value="6">Trainer</option>
+					{% endifequal %}
+					{% ifequal userprofile.accesslevel "9" %}
+					<option value="9" selected>Admin</option>
+					{% else %}
+					<option value="9">Admin</option>
+					{% endifequal %}
+				</select>
+				<br><br>
+				{% endif %}
+				<div><img src='/avatar?guser={{ userprofile.email }}'></img></div>
+				<div>Change Avatar<br>
+				<input type="file" name="avatar"/>
+				</div>
+				<br><br>
+				<input type="submit" value="Save User Profile">
+				</form>
+				<br>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

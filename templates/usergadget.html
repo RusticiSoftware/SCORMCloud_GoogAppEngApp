@@ -1,0 +1,97 @@
+<html>
+<head>
+	<link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+
+	<script type="text/javascript" src="../scripts/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="/scripts/scormcloud_gae.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('.showdetails').click(function(){
+			key = $(this).attr('key');
+			$('[showkey="' + key + '"]').toggleClass("nodisplay");
+		});
+		
+		
+	});
+	</script>
+</head>
+<body>
+	<div id="usergadget" class="gadget {{container}}">
+	{% if not loggedin %}
+		<h3><a href="{{loginurl}}">Click here to log in.</a></h3>
+	{% else %}
+		{% ifnotequal container "gm" %}
+		<div class="logininfo right">
+			<div>{{ useremail }}</div> 
+			<div>(<a href="{{loginurl}}">not you?</a>)</div>
+		</div>
+		{% endifnotequal %}
+		<h3>My Training</h3>
+		
+		<div id="viewPanel clear" >
+		{% ifnotequal regs None %}
+		{% for reg in regs %}
+			<div class="regDiv">
+				{% ifnotequal reg.duedate None %}
+				<div class="right">
+					Due: <b>{{ reg.duedate|date:"M d, Y H:i"|default:"(no due date)" }}</b>
+				</div>
+				{% endifnotequal %}
+				<strong><div key="{{ reg.regid }}" class="fakelink showdetails">{{ reg.coursetitle }}</div></strong>
+				<div class="clear"></div>
+				<div showkey="{{ reg.regid }}" class="details nodisplay">
+					<div class="launchdiv">
+						<div><a href="/registration/launch/{{ reg.regid }}" title="Launch This Course" target="_blank">Launch Training</a></div>
+						
+					</div>
+					
+					<table class="resultTable">
+						<tr>
+						<td class="results" >
+							<div class="statusDiv">
+								<span class="statLabel">Completion:</span> <span class=" statusVal {{ reg.completion|default_if_none:"unknown" }}">{{ reg.completion|default_if_none:"unknown" }}</span>
+							</div>
+							<div class="statusDiv">
+								<span class="statLabel">Satisfaction:</span> <span class=" statusVal {{ reg.satisfaction|default_if_none:"unknown" }}">{{ reg.satisfaction|default_if_none:"unknown" }}</span>
+							</div>
+
+						{% ifnotequal container "gm" %}
+						</td>
+						<td class="results">
+						{% endifnotequal %}
+							{% ifnotequal reg.score 'unknown' %}
+								{% ifnotequal reg.score None %}
+								<div class="statusDiv">
+									<span class="statLabel">Score:</span>
+									<span class="statusVal">{{ reg.score }}%</span>
+								</div>
+								{% endifnotequal %}
+							{% endifnotequal %}
+							{% ifnotequal reg.timespent None %}
+								<div class="statusDiv">
+									<span class="statLabel">Total Time:</span>
+									<span class="statusVal">{{ reg.timespent|sectodur }}</span>
+								</div>
+								{% else %}
+								<div class="notstarted">Not Started</div>
+							{% endifnotequal %}
+						</td>
+					
+						</tr>
+					</table>
+					{% ifnotequal reg.lastaccess None %}
+					<div ><small>Last Access : <b>{{ reg.lastaccess|timesince }} ago</b></small></div>
+					{% endifnotequal %}
+					<div class="clear"></div>
+				</div>
+			
+			</div>
+			
+		{% endfor %}
+		{% endifnotequal %}
+		</div>
+	
+	{% endif %}
+	</div>
+</body>
+</html>

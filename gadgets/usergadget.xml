@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="SCORM Cloud Training" directory_title="SCORM Cloud App" description="Lists courses for the current user" author="Rustici Software" author_email="info@scorm.com" author_location="Franklin, TN" height="300" scrolling="true" singleton="false" category="Training" thumbnail="widget-thumbnail.jpg"  screenshot="widget-thumbnail.jpg">
+</ModulePrefs>
+<Content type="url" view="home,profile" href="../usergadget"/>
+<Content type="url" view="canvas" href="../mytraining"/>
+</Module>

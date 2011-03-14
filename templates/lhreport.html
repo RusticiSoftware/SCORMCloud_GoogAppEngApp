@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Registration Report
+{% endblock %}
+
+{% block extrahead %}
+
+<script type="text/javascript" src="/scripts/jquery.xmldom.min.js"></script>
+<link rel="Stylesheet" href="stylesheets/LaunchHistoryReport.css"  type="text/css"/>
+<script type="text/javascript" src="/scripts/LaunchHistoryReport.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+		var output = "";
+		$.xmlDOM('{{ regxml }}').find('launchhistory').each(function() {
+					//alert($(this));
+		            output += displayReport($(this));
+		        });
+		$('#ReportOutput').html(output);
+    });
+
+function displayReport(rpt) {
+	var output = "";
+	var regid = rpt.find('launchhistory').attr('regid');
+	
+	output += '<div id="historyInfo">';
+	output += "<table>";
+	output += "<tr><td class='launch_headerName' colspan='2'>Launch Instances</td>";
+	output += "<td class='launch_time'>Launch Time</td>";
+	output += "<td class='launch_duration'>Duration</td></tr></table>";
+	output += '<div id="historyDetails" class="history_details">';
+
+	output += "<div class='launch_list'>";
+	 
+	var idx = 1;
+	rpt.find('launch').each(function(){
+
+		lid = 	$(this).attr('id');
+
+		output += "<div class='LaunchPlaceHolder' id='launch_"+$(this).attr('id')+"' regid='"+regid+"'>";
+
+		output += "<div class='hide_show_div' >";
+		output += "<table>";
+		output += "<tr><td class='launch_listPrefix'>+</td>";
+		output += "<td class='launch_index'>"+idx+".</td>";
+		output += "<td class='launch_time'>"+ $(this).find('launch_time').text() +"</td>";
+		output += "<td class='launch_duration'></td>";
+		output += "</tr></table>";
+		output += "</div>";
+
+		output += "<div class='launch_activity_list'><div id='receiver' class='div_receiver'></div></div>";
+		output += "</div>";
+
+		idx++;
+		
+	});
+	
+	output += "  </div>";
+	output += '</div></div>';
+
+	return output;
+}
+</script>
+
+<script type="text/javascript">
+	var extConfigurationString = "";
+	var reportsHelperUrl = "LaunchHistoryHelper.php";
+</script>
+<style>
+	#column_headers {position:relative; font-weight:bold; border-bottom:1px solid #4171B5; padding: 3px 0px; margin-top:20px;}
+	.headerLaunchTime {position:relative; width:300px; font-size:110%;}
+	.headerExitTime {position:absolute; top:3px; left:200px; font-size:110%;}
+	.headerDuration {position:absolute; top:3px; left:400px; font-size:110%;}
+	.headerSatisfaction {position:absolute; top:3px; left:525px; font-size:110%;}
+	.headerCompletion {position:absolute; top:3px; left:650px; font-size:110%;}
+
+	.activityReportHeader {font-size:150%; position:relative;}
+	.launchHistoryLink {position:absolute; right:25px; top:0px;}
+	.launchHistoryLink img {margin-right:10px; vertical-align:top;}
+
+	td.launch_headerName {
+	color:#0077CC;
+	font-size:120%;
+	font-weight:bold;
+	padding-bottom:0;
+	width:154px;
+	}
+	td.launch_index {width:120px;}
+
+	#historyInfo {margin-top:10px; margin-left:50px;}
+
+	.instance_info_reg_fields_title, .score_fields_title {font-size:90%;}
+	.info_label {font-size:90%;}
+</style>
+
+{% endblock %}
+
+{% block bannertitle %}
+	Registration Report
+{% endblock %}
+
+{% block bannermenu %}
+	<ul>
+		<li><a href="/">Dashboard</a></li>
+		<li><a href="/mycourses">My Courses</a></li>
+		<li><a href="/course/list">All Courses</a></li>
+		{% if isadmin %}
+		<li><a href="/course/upload">Upload New Course</a></li>
+		{% endif %}
+	</ul>
+{% endblock %}
+
+{% block pagecontent %}
+<br><br>
+<div class="statusbox">
+	<br><br>
+	<div class='activityReportHeader'>
+	</div>
+	<div id="ReportOutput"></div>
+	<br><br><br>
+	<!-- 
+	<rsp stat="ok">
+		<launchhistory regid="69799ed1-cf58-11de-926e-0f02edaab4e4">
+			<launch id="b5bfd5bd-c9ce-4be4-bcce-53cc7d89901a">
+				<completion>complete</completion>
+				<satisfaction>passed</satisfaction>
+				<measure_status>1</measure_status>
+				<normalized_measure>1.0</normalized_measure>
+				<experienced_duration_tracked>4081</experienced_duration_tracked>
+				<launch_time>2009-11-12T21:41:06.424+0000</launch_time>
+				<exit_time>2009-11-12T21:41:49.258+0000</exit_time>
+				<update_dt>2009-11-12T21:41:49.258+0000</update_dt>
+			</launch>
+		</launchhistory>
+	</rsp> 
+	-->
+</div>
+{% endblock %}

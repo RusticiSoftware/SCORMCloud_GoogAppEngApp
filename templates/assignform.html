@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Assignment Form
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.navlinks a.newassign').replaceWith("<span class='active'>Assignments</span>");
+	
+	
+	$(function() {
+		$("#duedate").datepicker({ dateFormat: 'yy-mm-dd',minDate:new Date() });
+	});
+	
+	$('#submitAssignBtn').click(MakeAssignmentCall);
+	
+
+	$('#sendEmail').removeAttr('checked').change(function(){$('.emailInputs').toggle();});
+	$('#addCalendarDate').removeAttr('checked').change(function(){$('.calendarInputs').toggle();});
+	
+	//$("#viewTabs").tabs("select",'#tabs-11');
+	
+});
+
+$(function() {
+	$("#tabs").tabs();
+	{% if alistfocus %}
+	$("#viewTabs").tabs().tabs("select",'#tabs-11');
+	{% else %}
+	$("#viewTabs").tabs();
+	{% endif %}
+	
+	
+});
+
+function MakeAssignmentCall(){
+	ShowActionStatus("Creating Assignment...");
+	$('.badInputMsg.sendassignment').hide();
+	
+	var senddata = {};
+	
+	var courseSelection = $('select[name="courseid"] option:selected');
+	if (courseSelection.length > 0 && courseSelection.val() != ''){
+		senddata.courseid = courseSelection.val();
+	}
+	else {
+		HideActionStatus();
+		$('.badInputMsg.sendassignment').text('Please select a course to assign.').show();
+		return;
+	}
+	
+	var uselections = $('.userlist .userselection');
+	if (uselections.length > 0){
+		senddata.usercount = uselections.length;
+		var users = new Array()
+		uselections.each(function(index){
+			var u = {};
+			u.ctype = $(this).attr('ctype');
+			u.key = $(this).attr('ckey');
+			if ($(this).attr('fname'))
+				u.fname = $(this).attr('fname');
+			if ($(this).attr('lname'))				
+				u.lname = $(this).attr('lname');
+			users[index] = u;
+		});
+		senddata.users = users
+	} else {
+		HideActionStatus();
+		$('.badInputMsg.sendassignment').text('Please select at least one person to assign the course to.').show();
+		return;
+	}
+	var dateset = false;
+	var dateSelection = $('#duedate');
+	if (dateSelection.val() != ''){
+		var timeSelection = $('#duetime');
+		duetime = (timeSelection.val() != '') ? timeSelection.val() : '{{duetime|time:"H:i"}}';
+		senddata.duedate = dateSelection.val() + ' ' + duetime;
+		dateset = true;
+	}
+	if ($('#addCalendarDate:checked').length > 0){
+		senddata.addevent = 'true';
+		if (!dateset){
+			HideActionStatus();
+			$('.badInputMsg.sendassignment').text('Please enter a duedate for your assignment.').show();
+			return;
+		}
+		
+		var assignTitle = $('#assigntitle');
+		if (assignTitle.val() != '') {
+			senddata.assigntitle = assignTitle.val();
+		} else {
+			HideActionStatus();
+			$('.badInputMsg.sendassignment').text('Please enter a title for your assignment.').show();
+			return;
+		}
+		var assignDesc = $('#assigndescription');
+		if (assignDesc.val() != '') {
+			senddata.assigndesc = assignDesc.val();
+		} else {
+			HideActionStatus();
+			$('.badInputMsg.sendassignment').text('Please enter a description for your assignment.').show();
+			return;
+		}
+		
+	}
+	
+	if ($('#sendEmail:checked').length > 0){
+		senddata.sendemail = 'true'
+		var emailSubject = $('#emailSubject');
+		if (emailSubject.val() != ''){
+			senddata.emailsubject = emailSubject.val();
+		} else {
+			HideActionStatus();
+			$('.badInputMsg.sendassignment').text('Please enter an email subject for your assignment.').show();
+			return;
+		}
+		var emailBody = $('#emailBody');
+		if (emailBody.val() != '') {
+			senddata.emailbody = emailBody.val();
+		} else {
+			HideActionStatus();
+			$('.badInputMsg.sendassignment').text('Please enter an email body for your assignment.').show();
+			return;
+		}
+		
+	}
+
+	$.ajax({
+		type:"POST",
+		url: "/ajax/assignaction",
+		data: senddata,
+		complete: function(data){
+			window.location = window.location;
+		},
+		dataType:"json"});
+		
+	
+	
+}
+
+
+</script>
+{% endblock %}
+
+{% block bannertitle %}
+	Training Assignments
+{% endblock %}
+
+
+{% block pagecontent %}
+<div id="assignTraining" class='scormcloudContent'>
+	
+	<div class="col60">
+		<div class="lftCol">	
+			
+			<div class="formItem">
+				<strong>Select Course: </strong>
+				<select name='courseid'>
+					<option value="">Select a course</option>
+					{% for course in courses %}
+						{% if not course.orphaned %}
+							{% ifequal courseid course.courseid%}
+								<option value="{{course.courseid}}" selected>{{course.title}}</option>
+							{% else %}
+								<option value="{{course.courseid}}">{{course.title}}</option>
+							{% endifequal %}
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+			
+			{% include "common/learnerselector.html" %}
+			
+			<div class="clear"></div>
+			
+			<div class="dateselector">
+				<strong>Due Date: </strong><input id="duedate" name="duedate" class="dateinput" type="text"/> <span class="label">Time: </span><input id="duetime" name="duetime" type="text" value="{{duetime|time:"H:i"}}" class="timeinput"/> (24 hour clock - {{utimezone}} timezone)
+				
+			</div>
+			
+			<div class="optionalInputs">
+			<input type="checkbox" id="addCalendarDate" name="addCalendarDate"><label for="addCalendarDate">Add assignment to calendar.</label>
+			<div class="calendarInputs nodisplay">
+				<table class="fullWidth">
+					
+					<tr>
+						<td class="label">Event Title:</td>
+						<td class='inputs'><input id="assigntitle" name="assigntitle" type="text" class="inputWidth" value="Training Assignment"/></td>
+						<td class="helpinfo" rowspan="2">The following tags are available to include information from this assignment in calendar events:
+							<br/><br/>
+							<div><b>[launchurl]</b> - replaced by a link to launch the training</div>
+							
+						</td>
+					</tr>
+					<tr>
+						<td class="label">Event Description:</td>
+						<td class='inputs'><textarea id="assigndescription" name="assigndescription" class="" >{{calendardescription}}</textarea></td>
+					</tr>
+				</table>
+			</div>
+			</div>
+
+			<div class="optionalInputs">
+			<input type="checkbox" id="sendEmail" name="sendEmail"><label for="sendEmail">Send notification email to learners.</label>
+				<div class="emailInputs nodisplay">
+					<table class="fullWidth">
+						<tr>
+							<td class="label">Email Subject:</td>
+							<td class='inputs'><input id="emailSubject" name="emailSubject" type="text" class="inputWidth" value="Training Assignment"/></td>
+							<td class="helpinfo" rowspan="2">The following tags are available to include information from this assignment in emails:
+								<br/><br/>
+								<div><b>[launchurl]</b> - replaced by a link to launch the training</div>
+								<div><b>[fname]</b> - replaced by the invitee's first name</div>
+								<div><b>[lname]</b> - replaced by the invitee's last name</div>
+								<div><b>[myname]</b> - replaced by your name, as the sender</div>
+								<div><b>[duedate]</b> - replaced by the selected due date</div>
+								
+							</td>
+						</tr>
+						<tr>
+							<td class="label">Email Body:</td>
+							<td class='inputs'><textarea id="emailBody" name="emailBody" class="" >{{emailbody}}</textarea></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<input type="submit" id="submitAssignBtn" value="Create Assignment">
+			<div class="badInputMsg sendassignment"></div>
+	
+		<br>
+		<br>
+		</div>
+	</div>
+	<div class="col40">
+		<div class="rtCol">
+		<div class="viewTabSelectors">
+			<div id="viewTabs">
+				<ul>
+					<li><a href="#tabs-10">My Assignments</a></li>
+					<li><a href="#tabs-11" >All Assignments</a></li>
+					<li><a href="#tabs-12">Calendar View</a></li>
+				</ul>
+				<div id="tabs-10">
+					{% for assObj in uassignments %}
+					<div class="assignmentbox" hover="hover" linkurl="/assignments/{{assObj.key|safe}}" title="View the assignment details.">
+						<div class="right">
+							<div><span class="label">Created:</span> {{assObj.assignment.createddate|date:"M d, Y g:i A"}}</div>
+							{% if assObj.assignment.sendemail %}
+								<div class="right notifyicon email" title="Email notification sent">icon</div>
+							{% endif %}
+							{% if assObj.assignment.addevent %}
+								<div class="right notifyicon calendar" title="Calendar event created">icon</div>
+							{% endif %}
+							
+
+						</div>
+						<div class="title">
+							<span class="label">Course: </span>
+							{{assObj.coursename}}
+						</div>
+						<div class="details">{{assObj.assignment.inviteecount}} Learners</div>
+						{% ifnotequal assObj.assignment.duedate None %}
+						<div class="details">Due {{assObj.assignment.duedate|date:"M d, Y g:i A"}}</div>
+						{% endifnotequal %}
+						<div class="clear"></div>
+					</div>
+					{% endfor %}
+					
+					{% if uamorepages %}
+					<div class="pager">
+						<ul>
+						{% for i in uapages %}
+							{% ifequal i uapage %}
+								<li class="active"><a href="/registration/assign?uapage={{ i }}">{{ i }}</a></li>
+							{% else %}
+								<li><a href="/registration/assign?uapage={{ i }}">{{ i }}</a></li>
+							{% endifequal %}
+						{% endfor %}
+						</ul>
+					</div>
+					<div class="clear"></div>
+					{% endif %}
+				</div>
+				<div id="tabs-11">
+					{% for assObj in assignments %}
+					<div class="assignmentbox" hover="hover" linkurl="/assignments/{{assObj.key|safe}}" title="View the assignment details.">
+						<div class="right">
+							<div><span class="label">Created:</span> {{assObj.assignment.createddate|date:"M d, Y g:i A"}}</div>
+							{% if assObj.assignment.sendemail %}
+								<div class="right notifyicon email" title="Email notification sent">icon</div>
+							{% endif %}
+							{% if assObj.assignment.addevent %}
+								<div class="right notifyicon calendar" title="Calendar event created">icon</div>
+							{% endif %}
+							
+
+						</div>
+						<div class="title">
+							<span class="label">Course: </span>
+							{{assObj.coursename}}
+						</div>
+						<div class="details">{{assObj.assignment.inviteecount}} Learners</div>
+						{% ifnotequal assObj.assignment.duedate None %}
+						<div class="details">Due {{assObj.assignment.duedate|date:"M d, Y g:i A"}}</div>
+						{% endifnotequal %}
+						<div class="clear"></div>
+					</div>
+					{% endfor %}
+					
+					{% if amorepages %}
+					<div class="pager">
+						<ul>
+						{% for i in apages %}
+							{% ifequal i apage %}
+								<li class="active"><a href="/registration/assign?apage={{ i }}">{{ i }}</a></li>
+							{% else %}
+								<li><a href="/registration/assign?apage={{ i }}">{{ i }}</a></li>
+							{% endifequal %}
+						{% endfor %}
+						</ul>
+					</div>
+					<div class="clear"></div>
+					{% endif %}
+				</div>
+				<div id="tabs-12">
+					<iframe src="http://www.google.com/calendar/hosted/{{appsdomain}}/embed?height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src={{calendarid}}&amp;color=%235A6986&amp;ctz={{timezone}}" style=" border-width:0" width="100%" height="450" frameborder="0" scrolling="no"></iframe>
+					
+				</div>
+
+			</div>
+		</div>
+		</div>
+	</div>
+		
+{% endblock %}

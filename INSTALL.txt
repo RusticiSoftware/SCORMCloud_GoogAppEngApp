@@ -1,0 +1,44 @@
+Install Instructions for the SCORM Cloud App for Google App Engine.
+Last Update: 4 Oct, 2010
+
+The SCORM Cloud App is a web application for managing and delivering SCORM training within an organization that uses Google Apps.  This application runs on the Google App Engine and integrates with the Google Apps Calendar, email, and contact systems.
+
+Installing and using this application is dependent on having a Google Apps account, a Google App Engine account, and a SCORM Cloud account.  Accounts can be procured at the following web locations.
+
+* SCORM Cloud - https://cloud.scorm.com
+* Google Apps - http://www.google.com/apps/
+* Google App Engine - http://code.google.com/appengine/ or https://appengine.google.com/a/<YOURDOMAIN.COM>/
+
+You will also need the Google App Engine Python SDK to upload the package to the Google App Engine.  This can be downloaded from: http://code.google.com/appengine/downloads.html
+
+Installation Instructions:
+
+1. Download and unzip the scormcloudapp.zip package from http://support.scorm.com/entries/277667-scorm-cloud-for-google-apps. (If you are reading this, then you likely have already done so.)
+
+2. Login to your Google Apps Engine account and click the "Create an Application" button. On the create application page:
+ 	1. Create a unique application identifier for the app. (This needs to be universally unique in the app engine system, so maybe name it "scormcloud_<your organization>" or something like that.)
+	2. Add an application title, which is what users will see.
+	3. Click the ‘Edit’ link to select an authentication option. Select the “Restricted to the following Google Apps domain” option and enter your apps domain.
+	4. Click ‘Create Application’
+	
+3. In the app.yaml file inside the scormcloudapp package, you need to change the "Application Identifier" value on the first line to be the same as what you entered in step 2.1. above. (In the package, this is probably "rusticisandboxlms" or "scormcloudapp" before you change it.)
+ 
+4. Add the application to your Google App Engine account.  Google instructions to do this can be found at http://code.google.com/appengine/docs/python/gettingstarted/uploading.html  Both methods require the Google App Engine SDK.
+	1. If using the Google App Engine Launcher application, simply add the scormcloudapp folder to your launcher as an existing app, and then click the deploy button.
+	2. If using the command line, run the following command:
+		appcfg.py update <your application_identifier>/
+
+5. Add the application to your Google Apps Domain:
+	1. Go to your Google Apps Domain management console Dashboard and click "Add More Services" (https://www.google.com/a/cpanel/<YOURDOMAIN.COM>/SelectServices).
+	2. Under the Google App Engine option, Enter the application identifier you added above and click "Add it now".
+	3. The Google system will ask you to accept the terms and will allow you to set up an access URL, if you'd like.
+	4. Note the address Google provides for accessing your application.
+	
+6. Set up the application for use (These steps need to be completed by an Apps Domain administrator):
+	1. Go to the application via the address provided by Google during the add application process.  If you are not taken to the settings page automatically, click the "App Settings" link at the top right of the page.
+	2. Enter the name of your Google Apps Domain (e.g., mydomain.com) and enter a site title that you want your users to see. Click "Save Settings".
+	3. Click the SCORM Cloud Settings tab, and enter your SCORM Cloud AppId and Secret Key which can be found in the SCORM Cloud site (http://cloud.scorm.com/sc/user/Apps). The service URL should default to the correct value. Click "Save Settings".
+	4. Click the Assignment Options tab and select your primary timezone used by your organization for use with the calendar for the application. Select or modify any other options as desired and click "Save Settings".
+	
+Your SCORM Cloud App should now be ready for use.
+

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Available Courses
+{% endblock %}
+
+{% block bannertitle %}
+	Available Courses
+{% endblock %}
+
+
+{% block pagecontent %}
+<div id="updateCourse" class='scormcloudContent'>
+	<div class="col70" >
+		<div class="lftCol">
+	
+			<div class="entry">
+				<br>
+				<div class="statusbox">
+					<form action="{{ action }}" method="post" enctype="multipart/form-data">
+						<table>
+							<tr>
+								<td class="label">Course Title:</td>
+								<td><input class="textinput" type="text" name="coursetitle" value="{{ coursetitle }}"/></td>
+							</tr>
+							<tr>
+								<td class="label desc">Course Description:</td>
+								<td><textarea id="descriptiontext" name="descriptiontext">{{ descriptiontext|noNone }}</textarea></td>
+							</tr>
+							<tr>
+								<td class="label">Course Tags:</td>
+								<td><input type="text" class="textinput" name="tags" value="{{ tags }}" />
+									<div class="helptext">separate tags with spaces</div>
+								</td>
+							</tr>
+							<tr><td class="rowspace" colspan="2"></td></tr>
+							<tr>
+								<td class="label"></td>
+								<td><div>
+									<input type="checkbox" id="incatalog" {{ incatalog }} name="incatalog" value="checked" />
+									<label for="incatalog">Add course to course catalog.</label>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="label"></td>
+								<td><div>
+									<input type="hidden" id="courseid" name="courseid" value="{{ courseid }}"/>
+									<input type="submit" value="Update Course Details" />&nbsp;&nbsp;&nbsp;&nbsp;
+									<a href="/course/admindetail/{{courseid}}">Cancel</a>
+								</td>
+							</tr>
+						</table>
+						
+						
+					</form>
+					<br>
+				</div>
+			</div>
+		</div
+	</div>
+	<div class="col30" >
+		<div class="rtCol">
+			<div class="infobox">
+			<p>Changes to the <b>course title</b> will apply to the course within the SCORM Cloud App, but will not apply to the course itself once launched.</p>
+			<br/>
+			<p>The <b>course description</b> is information about the course available to learners in the SCORM Cloud App.</p>
+			<br/>
+			<p><b>Course tags</b> can be used to organize courses in the SCORM Cloud App as well as for reporting purposes.</p>
+			<br/> 
+			<p>Adding a course to the <b>course catalog</b> will enable any registered user to create a registration and launch the course from within the application without having been assigned the course.</p>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

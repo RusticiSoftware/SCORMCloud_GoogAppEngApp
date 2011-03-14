@@ -1,0 +1,692 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Assignment Details
+{% endblock %}
+
+{% block bannertitle %}
+	Assignment Details
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$(function() {
+		$("#duedate").datepicker({ dateFormat: 'yy-mm-dd',minDate:new Date() });
+	});
+	
+	$('.duedate').click(function(){
+		$(this).hide();
+		$('.dateEdit').css('display','inline');
+	});
+	$('.canceldate').click(function(){
+		$('.dateEdit').css('display','none');
+		$('.duedate').show();
+	});
+	$('button.savedate').click(function(){
+		$('.dateEdit .badInputMsg').hide();
+		ShowActionStatus("Saving...");
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+		var dateSelection = $('#duedate');
+		var timeSelection = $('#duetime');
+		duetime = (timeSelection.val() != '') ? timeSelection.val() : '00:00';
+		var duedate = dateSelection.val() + ' ' + duetime;
+		senddata.duedate = duedate;
+		var d = new Date()
+		senddata.tz = '{{timezone}}';//d.getTimezoneOffset()
+		
+		$.ajax({
+			type:"POST",
+			url: "/ajax/assigndate",
+			data: senddata,
+			complete: function(data){
+				var respJson = $.parseJSON(data.responseText);
+				if (respJson.rsp.result == "success"){
+					$('.dateEdit').css('display','none');
+					$('.duedate').text(respJson.rsp.duedate).show();
+				} else {
+					$('.dateEdit .badInputMsg').text(respJson.rsp.errormsg).show();
+				}
+				HideActionStatus();
+			},
+			dataType:"json"
+		});
+		
+	});
+	
+	$('#updatecalendar').click(function(){
+		$('.eventInputs.calendar .successMsg').hide();
+		$('.badInputMsg.updateCal').hide();
+		ShowActionStatus("Saving...");
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+		senddata.eventtitle = $('#assigntitle').val()
+		senddata.eventdesc = $('#assigndescription').val();
+		
+		$.ajax({
+			type:"POST",
+			url: "/ajax/updateevent",
+			data: senddata,
+			complete: function(data){
+				var respJson = $.parseJSON(data.responseText);
+				if (respJson.rsp.result == "success"){
+					$('.eventInputs.calendar .successMsg').show();
+				} else {
+					$('.badInputMsg.updateCal').text(respJson.rsp.errormsg).show();
+					
+				}
+				HideActionStatus();
+			},
+			dataType:"json"
+		});
+		
+	});
+	
+	$('#updateemail').click(function(){
+		$('.eventInputs.email .successMsg').hide();
+		$('.badInputMsg.updateEmail').hide();
+		ShowActionStatus("Saving...");
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+		senddata.emailsubject = $('#emailsubject').val()
+		senddata.emailbody = $('#emailbody').val();
+		
+		$.ajax({
+			type:"POST",
+			url: "/ajax/assignemail",
+			data: senddata,
+			complete: function(data){
+				var respJson = $.parseJSON(data.responseText);
+				if (respJson.rsp.result == "success"){
+					$('.eventInputs.email .successMsg').show();
+				} else {
+					$('.badInputMsg.updateEmail').text(respJson.rsp.errormsg).show();
+					
+				}
+				HideActionStatus();
+			},
+			dataType:"json"
+		});
+		
+	});
+	
+	$('#updateRemEmail').click(function(){
+		$('.eventInputs.reminders .successMsg').hide();
+		$('.badInputMsg.updatereminder').hide();
+		ShowActionStatus("Updating...");
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+		senddata.remsubject = $('#remindersubject').val()
+		senddata.rembody = $('#reminderbody').val();
+		
+		$.ajax({
+			type:"POST",
+			url: "/ajax/assignemail",
+			data: senddata,
+			complete: function(data){
+				var respJson = $.parseJSON(data.responseText);
+				if (respJson.rsp.result == "success"){
+					$('.eventInputs.reminders .successMsg').show();
+				} else {
+					$('.badInputMsg.updatereminder').text(respJson.rsp.errormsg).show();
+					
+				}
+				CheckReminderSubject();
+				HideActionStatus();
+			},
+			dataType:"json"
+		});
+		
+	});
+	
+	$('#addreminder').click(function(){
+		
+		$('.badInputMsg.addreminder').hide();
+		ShowActionStatus("Adding reminder...");
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+		senddata.pop = $('#reminderpop option:selected').val()
+		senddata.quant = $('#remindertime').val();
+		senddata.units = $('#reminderunit option:selected').val();
+		
+		var newnode = $('.reminderlist .reminder.nodisplay').clone();
+		newnode.text($('#reminderpop option:selected').text() + ' at ' + senddata.quant + ' ' + senddata.units).click(function(){DeleteReminder($(this));});
+		
+		$.ajax({
+			type:"POST",
+			url: "/ajax/addreminder",
+			data: senddata,
+			complete: function(data){
+				//window.location = window.location;
+				var respJson = $.parseJSON(data.responseText);
+				if (respJson.rsp.result == "success"){
+					//window.location = window.location
+					newnode.attr('key',respJson.rsp.key);
+					$('.reminderlist').append(newnode.removeClass('nodisplay'));
+					
+				} else {
+					newnode.remove();
+					//$('.badInputMsg.addreminder').text(respJson.rsp.errormsg).show();
+					
+				}
+				CheckReminderSubject();
+				HideActionStatus();
+			},
+			dataType:"json"
+		});
+		
+	});
+	
+	$('.reminderlist .reminder').click(function(){
+		var rem = $(this)
+		DeleteReminder(rem);
+	});
+	
+	$('#sendemail').click(function(){
+		$('.eventInputs.newemail .successMsg').hide();
+		$('.badInputMsg.sendEmail').hide();
+		ShowActionStatus("Saving...");
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+		senddata.emailsubject = $('#newemailsubject').val()
+		senddata.emailbody = $('#newemailbody').val();
+		senddata.emailpop = $('#newemailpop option:selected').val();
+		$.ajax({
+			type:"POST",
+			url: "/ajax/sendemail",
+			data: senddata,
+			complete: function(data){
+				window.location = window.location;
+				/*var respJson = $.parseJSON(data.responseText);
+				if (respJson.rsp.result == "success"){
+					$('.eventInputs.newemail .successMsg').show();
+				} else {
+					$('.badInputMsg.sendEmail').text(respJson.rsp.errormsg).show();
+					
+				}
+				HideActionStatus();*/
+			},
+			dataType:"json"
+		});
+		
+	});
+	
+	
+	
+	$('.activateBtn').click(function(){
+		ShowActionStatus("Saving...");
+		var activateBtn = $(this);
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+		var statusdiv = $(this).parent();
+		var isactive =  (statusdiv.attr('active') == 'active');
+		senddata.active = isactive;
+		$.ajax({
+			type:"POST",
+			
+			url: "/ajax/assignactive",
+			data: senddata,
+			complete: function(data){
+				if (data.responseText == "success"){
+					var newval = isactive ? 'inactive' : 'active';
+					statusdiv.attr('active',newval).find('span.status').text(newval);
+					newval = isactive ? 'activate' : 'deactivate';
+					activateBtn.text(newval);	
+				}
+				HideActionStatus();
+			},
+			dataType:"json"});
+	});
+	
+	$('#autoexpire').click(function(){
+		ShowActionStatus("Updating...");
+		var aexp = $(this);
+		var senddata = {};
+		senddata.assignid = aexp.attr('assignid');
+		var autoexpire =  ($('#autoexpire:checked').length > 0);
+		senddata.autoexpire = autoexpire;
+		$.ajax({
+			type:"POST",
+			
+			url: "/ajax/assignautoexpire",
+			data: senddata,
+			complete: function(data){
+				if (data.responseText == "success"){
+					$('.successMsg.autoexpire').show();
+				}
+				HideActionStatus();
+			},
+			dataType:"json"});
+	});
+	
+	$('#addUsersBtn').click(function(){
+		var senddata = {};
+		senddata.assignid = $(this).attr('assignid');
+
+		var uselections = $('.userlist .userselection');
+		if (uselections.length > 0){
+			senddata.usercount = uselections.length;
+			var users = new Array()
+			uselections.each(function(index){
+				var u = {};
+				u.ctype = $(this).attr('ctype');
+				u.key = $(this).attr('ckey');
+				if ($(this).attr('fname'))
+					u.fname = $(this).attr('fname');
+				if ($(this).attr('lname'))				
+					u.lname = $(this).attr('lname');
+				users[index] = u;
+			});
+			senddata.users = users
+		} else {
+			HideActionStatus();
+			$('.badInputMsg.sendassignment').text('Please select at least one person to assign the course to.').show();
+			return;
+		}
+		
+		ShowActionStatus("Adding User(s)...");
+		$.ajax({
+			type:"POST",
+			url: "/ajax/assignusers",
+			data: senddata,
+			complete: function(data){
+				var respJson = $.parseJSON(data.responseText);
+				//alert(data.responseText);
+				window.location = window.location;
+				/*
+				if (respJson.rsp.result == "success"){
+					window.location = window.location;
+				} else {
+					HideActionStatus();	
+				}*/
+
+				
+			},
+			dataType:"json"});
+		
+	});
+	
+	CheckReminderSubject();
+	
+	
+	$(function() {
+		$("#tabs").tabs();
+	
+	});
+
+});
+	
+function DeleteReminder(rem){
+	var senddata = {};
+	senddata.key = rem.attr('key');
+	$.ajax({
+		type:"POST",
+		url: "/ajax/delreminder",
+		data: senddata,
+		complete: function(data){
+			var respJson = $.parseJSON(data.responseText);
+			if (respJson.rsp.result == "success"){
+				rem.remove();
+			} 
+			CheckReminderSubject();
+			HideActionStatus();
+		},
+		dataType:"json"
+	});
+	
+}
+	
+function CheckReminderSubject(){
+	if ($('.reminderlist .reminder:visible').length > 0){
+		if ($('#remindersubject').val().length == 0 || $('#reminderbody').val().length == 0){
+			$('.badInputMsg.reminderemailcontents').text('A subject and a body need to be provided for your reminder emails to be sent.').show();
+		} else {
+			$('.badInputMsg.reminderemailcontents').hide();
+		}
+		
+	} else {
+		$('.badInputMsg.reminderemailcontents').hide();
+	}
+}
+
+
+</script>
+{% endblock %}
+
+
+{% block pagecontent %}
+
+<div id="assignmentDetails" class='scormcloudContent'>
+		<div class="col60">
+			<div class="lftCol">
+			
+				<div class="right">
+					<div class="assigninfo">Assigned </span>{{assignment.createddate|date:"M d, Y H:i"}}
+					by {{assignment.createdbyuser|username}}</div>
+					{% if assignment.sendemail %}
+						<div class="right notifyicon email" title="Email notification sent">icon</div>
+					{% endif %}
+					{% if assignment.addevent %}
+						<div class="right notifyicon calendar" title="Calendar event created">icon</div>
+					{% endif %}
+					<div class="textright clear"><a href="/assignment/delete/{{assignment.key|safe}}"
+						onclick="return confirm('Are you sure you want to delete this assignment? This will also delete ALL registrations for this assignment and cannot be undone.');">Delete</a></div>
+				</div>
+			
+				<div class="coursetitle">{{course.title}}</div>
+			
+				<div class="assdetails">Due 
+					<div class="duedate" hover="hover">
+						<!--<span class='localizeDate' utcdate='{{assignment.duedate|date:"d M Y H:i:s"|default:"(no due date set)"}}' format= 'mmmm d, yyyy h:MM TT Z'></span>-->
+						{{assignment.duedate|date:"M d, Y H:i"|default:"(no due date set)"}} (<span class="fakelink">edit</span>)
+					</div>
+					<div class="dateEdit"><input id="duedate" name="duedate" value="{{assignment.duedate|date:"Y-m-d"}}" class="dateinput" type="text"/> <span class="label">Time: </span><input id="duetime" name="duetime" type="text" value="{{assignment.duedate|date:"H:i"}}" title="Time due (24 hour clock)" class="timeinput"/>
+						<button class="savedate" assignid="{{assignment.key|safe}}">Save</button> <span class="fakelink canceldate">cancel</span>
+						<div class='badInputMsg'></div>
+					</div>
+					
+					</div>
+					
+				</div>
+				
+				{% if assignment.active %}
+				<div class="assdetails activeStatus" active="active">Assignment is <span class="status">active</span> (<span class="fakelink activateBtn" assignid="{{assignment.key|safe}}">deactivate</span>)</div>
+				{% else %}
+				<div class="assdetails activeStatus" active="inactive">Assignment is <span class="status">inactive</span> (<span active="" class="fakelink activateBtn" assignid="{{assignment.key|safe}}">activate</span>)</div>				
+				{% endif %}
+				<div class="clear">
+					
+				
+				<div class="coursebox">
+					<div class="coursebox-title">
+						There {{assignment.inviteecount|pluralize:"is,are"}} {{assignment.inviteecount}} assigned learner{{assignment.inviteecount|pluralize}}.
+					</div>
+					<div class="coursebox-content">
+						
+						<table class="reglist fullWidth">
+							<tr>
+								<td></td>
+								<td></td>
+								<td class="colLabel">Completion</td>
+								<td class="colLabel">Satisfaction</td>
+								<td class="colLabel">Score</td>
+								<td class="colLabel">Total Time</td>
+							</tr>
+							{% regroup userregs by compl as grouped_regs %}
+
+							{% for compl in grouped_regs %}
+								<tr class="groupHeader"><td class="title" colspan="6">{{compl.grouper}} Training</td></tr>  
+								{% for userreg in compl.list %}
+						
+								<tr class="reg">
+									<td><strong><a href="/user/{{userreg.user.key|safe}}">{{userreg.user.fname}} {{userreg.user.lname}}</a></strong></td>
+									<td>{{userreg.user.email}}</td>
+									<td class="resultinfo"><span class=" statusVal {{ userreg.reg.completion }}">{{userreg.reg.completion}}<span></td>
+									<td class="resultinfo"><span class=" statusVal {{ userreg.reg.satisfaction }}">{{userreg.reg.satisfaction}}</td>
+									<td class="resultinfo">
+										{% ifnotequal userreg.reg.score None %}
+											{% ifnotequal userreg.reg.score "unknown" %}
+											<span class="statusVal">{{ userreg.reg.score }}%</span>
+											{% else %}
+												<span class="statusVal unknown">No Score</span>
+											{% endifnotequal %}
+										{% else %}
+											<span class="statusVal unknown">No Score</span>
+										{% endifnotequal %}
+									</td>
+									<td class="resultinfo">
+										{% ifnotequal userreg.reg.timespent None %}
+											<div class="statusDiv">
+												<span class="statusVal">{{ userreg.reg.timespent|sectodur }}</span>
+											</div>
+										{% else %}
+											<div class="statusDiv">
+												<span class="statusVal unknown">Not Started</span>
+											</div>
+										{% endifnotequal %}
+									</td class="resultinfo">
+								</tr>
+								{% endfor %}
+						{% endfor %}
+						</table>
+						
+					
+						
+					</div>
+				</div>
+
+				
+			</div>
+		</div>
+		<div class="col40">
+			<div class="rtCol">
+				<div class="coursebox">
+					<div class="coursebox-title">
+						Add Learners
+					</div>
+					<div class="coursebox-content closed addlearners">
+						{% include "common/learnerselector.html" %}
+						<div><button id="addUsersBtn" assignid="{{assignment.key|safe}}">Add Users</button></div>
+						<div class="badInputMsg sendassignment"></div>
+					</div>
+				</div>
+				<div class="coursebox">
+					<div class="coursebox-title">
+						Edit Calendar Event
+					</div>
+					<div class="coursebox-content closed">
+						<div class="eventInputs calendar">
+							<div class="helpinfo">
+								<p>The following tags are available to include information from this assignment in calendar events:</p>
+								<div><b>[launchurl]</b> - replaced by a link to launch the training</div>
+							</div>
+							<table class="fullWidth">
+								<tr>
+									<td><div class="label">Event Title:</div>
+									<input id="assigntitle" name="assigntitle" type="text" class="inputWidth" value="{{assignment.title|noNone}}"/></td>
+								</tr>
+								<tr>
+									<td><div class="label">Description:</div>
+									<textarea id="assigndescription" name="assigndescription" class="inputWidth" >{{assignment.description|noNone}}</textarea></td>
+								</tr>
+								<tr>
+									<td><button id="updatecalendar" assignid="{{assignment.key|safe}}">Update Event</button> <span class="successMsg">Update Successful</span>
+										<div class="badInputMsg updateCal"></div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						
+					</div>
+				</div>
+				<div class="coursebox">
+					<div class="coursebox-title">
+						Edit Email Notification
+					</div>
+					<div class="coursebox-content closed">
+						<div class="eventInputs email">
+							<div class="helpinfo">
+								<p>Changes to the email will only be sent to learners assigned the course in the future.</p>
+								<p>The following tags are available to include information from this assignment in emails:</p>
+								<div><b>[launchurl]</b> - replaced by a link to launch the training</div>
+								<div><b>[fname]</b> - replaced by the invitee's first name</div>
+								<div><b>[lname]</b> - replaced by the invitee's last name</div>
+								<div><b>[myname]</b> - replaced by your name, as the sender</div>
+								<div><b>[duedate]</b> - replaced by the selected due date</div>
+							</div>
+							<table class="fullWidth">
+								<tr>
+									<td><div class="label">Email Subject:</div>
+									<input id="emailsubject" name="emailsubject" type="text" class="inputWidth" value="{{assignment.emailsubject|noNone}}"/></td>
+								</tr>
+								<tr>
+									<td><div class="label">Email Body:</div>
+									<textarea id="emailbody" name="emailbody" class="inputWidth" >{{assignment.emailbody|noNone}}</textarea></td>
+								</tr>
+								<tr>
+									<td><button id="updateemail" assignid="{{assignment.key|safe}}">Update Email</button> <span class="successMsg">Update Successful</span>
+										<div class="badInputMsg updateEmail"></div>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				{% if enablereminders %}
+				<div class="coursebox">
+					<div class="coursebox-title">
+						Set Reminders 
+					</div>
+					<div class="coursebox-content closed">
+						<div class="eventInputs reminders">
+							{% ifequal assignment.duedate None %}
+							<div class="helpinfo">
+								<p>Reminders require that a duedate be set.</p>
+							</div>
+							{% endifequal %}
+							<div class="label">Reminders:</div>
+							<div class="reminderlist">
+								<div class="reminder nodisplay" title="Click to remove this reminder."></div>
+								{% for reminder in reminders %}
+										<div class="reminder" key="{{reminder.key|safe}}" hover="hover" title="Click to remove this reminder.">{{reminder.population|populationtype}} at {{reminder.timequantity}} {{reminder.timeunits}}
+										{% if reminder.sent %}
+										(sent)
+										{% endif %}	
+										</div>
+								{% endfor %}
+
+							</div>
+							<div class="clear"></div>							
+							
+							<table class="fullWidth">
+								<tr>
+									<td><div class="label">Add Reminder:</div>
+										<span class="label">Who:</span>
+										<select id="reminderpop" name="reminderpop" >
+											<option selected value="all">{{"all"|populationtype}}</option>
+											<option value="incomplete">{{"incomplete"|populationtype}}</option>
+											<option value="notstarted">{{"notstarted"|populationtype}}</option>
+										</select>
+										<span class="label">When:</span>
+											<input id="remindertime" name="remindertime" type="text" class="smallInput" value=""/>
+											<select id="reminderunit" name="reminderunit" >
+												<option value="hours">hours</option>
+												<!--<option value="minutes">minutes</option>-->
+												<option value="days">days</option>
+											</select>
+											<button id="addreminder" assignid="{{assignment.key|safe}}">Add</button>
+										
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<hr/>
+										<div class="badInputMsg reminderemailcontents"></div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="helpinfo">
+											<p>All reminders will be sent the same email, specified below.</p>
+											<p>The following tags are available to include information from this assignment in emails:</p>
+											<div><b>[launchurl]</b> - replaced by a link to launch the training</div>
+											<div><b>[fname]</b> - replaced by the invitee's first name</div>
+											<div><b>[lname]</b> - replaced by the invitee's last name</div>
+											<div><b>[myname]</b> - replaced by your name, as the sender</div>
+											<div><b>[duedate]</b> - replaced by the selected due date</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td><div class="label">Reminder Email Subject:</div>
+									<input id="remindersubject" name="remindersubject" type="text" class="inputWidth" value="{{assignment.remindersubject|noNone}}"/></td>
+								</tr>
+								<tr>
+									<td><div class="label">Reminder Email Body:<div>
+									<textarea id="reminderbody" name="reminderbody" class="inputWidth" >{{assignment.reminderbody|noNone}}</textarea></td>
+								</tr>
+								<tr>
+									
+									<td><button id="updateRemEmail" assignid="{{assignment.key|safe}}">Update Reminder Email</button> <span class="successMsg">Update Successful</span>
+										<div class="badInputMsg updatereminder"></div>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+				{% if enableautoexpire %}
+				<div class="coursebox">
+					<div class="coursebox-title">
+						Set Auto-Expire 
+					</div>
+					<div class="coursebox-content closed">
+						<div class="helpinfo">
+							<p>Enabling <b>Auto-Expire</b> will set the assignment to inactive around the time (within 5 minutes) of the course duedate.</p>
+							<p>Auto-Expire requires that a duedate be set.</p>
+						</div>
+						<input type="checkbox" assignid="{{assignment.key|safe}}" name="autoexpire" id="autoexpire"
+						{% if assignment.autoexpire %} checked="checked" {% endif %}/>
+						
+						 <label for="autoexpire">Enable Auto Expire</label> &nbsp;<span class="successMsg autoexpire">Update Successful</span>
+						
+						
+					</div>
+				</div>
+				{% endif %}
+				<div class="coursebox">
+					<div class="coursebox-title">
+						Send Email 
+					</div>
+					<div class="coursebox-content closed">
+						<div class="eventInputs newemail">
+							<div class="helpinfo">
+								<p>Send an email to selected invitees.</p>
+								<p>The following tags are available to include information from this assignment in emails:</p>
+								<div><b>[launchurl]</b> - replaced by a link to launch the training</div>
+								<div><b>[fname]</b> - replaced by the invitee's first name</div>
+								<div><b>[lname]</b> - replaced by the invitee's last name</div>
+								<div><b>[myname]</b> - replaced by your name, as the sender</div>
+								<div><b>[duedate]</b> - replaced by the selected due date</div>
+							</div>
+							<table class="fullWidth">
+								<tr>
+									<td><div class="label">Email Recipients:</div>
+										<select id="newemailpop" name="newemailpop" >
+											<option selected value="all">All Invitees</option>
+											<option value="complete">All who have completed the training</option>
+											<option value="incomplete">All who have not completed the training</option>
+											<option value="started">All who have started the training</option>
+											<option value="notstarted">All who have not started the training</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td><div class="label">Email Subject:</div>
+									<input id="newemailsubject" name="newemailsubject" type="text" class="inputWidth" value=""/></td>
+								</tr>
+								<tr>
+									<td><div class="label">Email Body:<div>
+									<textarea id="newemailbody" name="newemailbody" class="inputWidth" ></textarea></td>
+								</tr>
+								<tr>
+									
+									<td><button id="sendemail" assignid="{{assignment.key|safe}}">Send Email</button> <span class="successMsg">Emails Sent</span>
+										<div class="badInputMsg sendEmail"></div>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				
+				<div class="clear"></div>
+				
+			</div>
+		</div>
+		
+
+</div>
+{% endblock %}

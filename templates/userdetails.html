@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: User Update
+{% endblock %}
+
+{% block bannertitle %}
+	User Details
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.editUser').click(function(){
+		$('.displayDiv').hide();
+		$('.editform').show();
+	});
+	$('.cancelEdit').click(function(){
+		$('.editform').hide();
+		$('.displayDiv').show();
+	});
+	
+	
+});
+</script>
+{% endblock %}
+{% block pagecontent %}
+<div id="userDetail" class="scormcloudContent">
+	<div class="col70">
+		<div class="lftCol">
+			<div class="displayDiv left" >
+				<div class="name">{{ userprofile.fname }} {{ userprofile.lname }}</div>
+				<div class="detail">{{ userprofile.email }}</div>
+				<div class="detail">{{ userprofile.fname }} is a {{userprofile.accesslevel|usertype}}.</div>
+				<div class="detail minor">Added on {{userprofile.createddate|date:"M d, Y"}}. <span class="fakelink editUser">edit user</span></div>
+			</div>
+			<div class="editform nodisplay">
+				<form action="/useradminaction" method="post" enctype="multipart/form-data">
+					<input type="hidden" name="userkey" value="{{userprofile.key|safe}}">
+					<table>
+						<tr>
+							<td class="label">Name:</td>
+							<td><input type="text" id="fname" name="fname" value="{{ userprofile.fname }}" placeholder="First Name" />
+							<input type="text" id="lname" name="lname" value="{{ userprofile.lname }}" placeholder="Last Name" /></td>
+						</tr>
+						<tr>
+							<td class="label">Email:</td>
+							<td><input type="text" id="email" name="email" value="{{ userprofile.email }}" /></td>
+						</tr>
+						{% if isadmin %}
+						<tr>
+							<td class="label">User Type:</td>
+							<td><select id="accesslevel" name="accesslevel">
+								<option value="0">Learner</option>
+								{% ifequal userprofile.accesslevel '5' %}
+								<option value="5" selected>Content Creator</option>
+								{% else %}
+								<option value="5">Content Creator</option>
+								{% endifequal %}
+								{% ifequal userprofile.accesslevel "6" %}
+								<option value="6" selected>Trainer</option>
+								{% else %}
+								<option value="6">Trainer</option>
+								{% endifequal %}
+								{% ifequal userprofile.accesslevel "9" %}
+								<option value="9" selected>Administrator</option>
+								{% else %}
+								<option value="9">Administrator</option>
+								{% endifequal %}
+							</select></td>
+						</tr>
+						{% endif %}
+						<tr>
+							<td class="label"></td>
+							<td><input type="submit" value="Save User Profile"> <span class="fakelink cancelEdit">cancel</span></td>
+						</tr>
+					
+						<!--><div><img src='/avatar?guser={{ userprofile.email }}'></img></div>
+						<div>Change Avatar<br>
+						<input type="file" name="avatar"/>
+						</div>-->
+					</table>
+					
+				</form>
+			</div>
+			<div class="clear"></div>
+
+			
+			<div class="coursebox">
+				<div class="coursebox-title">Training Transcript ({{ userregs|length }})</div>
+				<div class="coursebox-content">
+					<table class="reglist fullWidth">
+						<tr>
+							<td></td>
+							<td></td>
+							<td class="colLabel">Completion</td>
+							<td class="colLabel">Satisfaction</td>
+							<td class="colLabel">Score</td>
+							<td class="colLabel">Total Time</td>
+							<td></td>
+						</tr>
+					{% for userreg in userregs %}
+						<tr class="reg">
+							<td><strong><a href="/course/admindetail/{{userreg.courseid}}">{{userreg.coursetitle}}</a></strong></td>
+							<td>
+							{% ifnotequal userreg.assignment None %}
+								{% ifnotequal userreg.assignment.duedate None %}
+								<a href="/assignments/{{userreg.assignment.key|safe}}" title="Go to the assignment">Due: {{userreg.assignment.duedate|date:"M d, Y g:i A"}}</a>
+								{% else %}
+								<a href="/assignments/{{userreg.assignment.key|safe}}" title="Go to the assignment">Assignment</a>
+								{% endifnotequal %}
+							{% else %}
+								(catalog launch)
+							{% endifnotequal %}
+							</td>
+							<td class="resultinfo"><span class=" statusVal {{ userreg.completion }}">{{userreg.completion}}<span></td>
+							<td class="resultinfo"><span class=" statusVal {{ userreg.satisfaction }}">{{userreg.satisfaction}}</td>
+							<td class="resultinfo">
+								{% ifnotequal userreg.score None %}
+									{% ifnotequal userreg.score "unknown" %}
+									<span class="statusVal">{{ userreg.score }}%</span>
+									{% else %}
+										<span class="statusVal unknown">No Score</span>
+									{% endifnotequal %}
+								{% else %}
+									<span class="statusVal unknown">No Score</span>
+								{% endifnotequal %}
+							</td>
+							<td class="resultinfo">
+								{% ifnotequal userreg.timespent None %}
+									<div class="statusDiv">
+										<span class="statusVal">{{ userreg.timespent|sectodur }}</span>
+									</div>
+								{% else %}
+									<div class="statusDiv">
+										<span class="statusVal unknown">Not Started</span>
+									</div>
+								{% endifnotequal %}
+							</td class="resultinfo">
+							<td class="resultinfo">
+								<div><span class=" fakelink viewtraininghistory reg" key='{{ userreg.regid }}' >View Report</span></div>
+							</td>
+						</tr>
+					{% endfor %}
+					</table>
+				</div>
+			</div>
+			
+			
+		</div>
+	</div>
+	<div class="col30">
+		<div class="rtCol">
+			<div class="infobox">
+				<p>{% ifnotequal userprofile.lastaccess None %}
+				{{ userprofile.fname }} last signed in at <b>{{userprofile.lastaccess|date:"M d, Y g:i A"}}</b>.
+				{% else %}
+				{{ userprofile.fname }} has never signed in.
+				{% endifnotequal %}</p>
+				<br/>
+				<p><span class="fakelink viewtraininghistory user" key='{{ userprofile.key|safe }}' >View Full User Report</span> - open a reportage report of all results for this user.</p>
+				<br/>
+				<p>Clicking <b>View Report</b> in the transcript table will open a window with a reportage report of the training for the row you selected.</p>
+			</div>
+			
+		</div>
+	</div>
+</div>
+{% endblock %}

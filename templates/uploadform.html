@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ sitetitle }} :: Available Courses
+{% endblock %}
+
+{% block bannertitle %}
+	Upload A New Course
+{% endblock %}
+
+
+{% block pagecontent %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.navlinks a.newcourse').replaceWith("<span class='active'>Upload New Course</span>");
+	
+});
+
+</script>
+<div id="uploadContent">
+	<div class="entry">
+		<br>
+		<div class="statusbox">
+			<form action="{{ action }}" method="post" enctype="multipart/form-data">
+				<h4>Select Your Zip Package</h4>
+				<input type="file" name="filedata" size="40" />
+				<br />
+				<br />
+				<input type="submit" value="Import This Course" />
+			</form>
+			<br>
+			<br>
+		</div>
+	</div>
+</div>
+{% endblock %}

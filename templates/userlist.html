@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}{{ sitetitle }} :: User Management{% endblock %}
+
+{% block bannertitle %}
+	User Management
+{% endblock %}
+
+{% block headerblock %}
+<div class="headerblock">
+	<form action="/admin/user/list" method="get">
+	<input type="text" id="qtext" name="qtext" size="30"/>
+	&nbsp;&nbsp;
+	<select id="qtype" name="qtype">
+		<option selected value='lname'>last name</option>
+		<option value='fname'>first name</option>
+	</select>
+	&nbsp;&nbsp;
+	<input type="submit" value="search users" id="submit" name="submit"/>
+	</form>
+</div>
+{% endblock %}
+
+{% block pagecontent %}
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.navlinks a.users').replaceWith("<span class='active'>Users</span>");
+	
+	
+	$('.viewtraininghistory').click(function(){
+		link = $(this);
+		var senddata = {};
+		email = link.attr('key');
+		senddata.email = email
+		
+
+		$.ajax({
+			type:"POST",
+			url: "/ajax/reporturl",
+			data: senddata,
+			complete: function(data){
+				//alert(data.responseText);
+				window.open(data.responseText);
+			},
+			dataType:"json"});
+		
+		return false;
+		
+	});
+	
+	
+});
+
+
+
+</script>
+<div id="manageUsers" class='scormcloudContent'>
+	
+	<div class="userlist col70" >
+		<div class="lftCol">
+		{% ifnotequal qtext None %}
+			{% ifnotequal qtype None %}
+			<div class="userlistheader">Your user <b>{{qtype|qtypeDict}}</b> search for <b>{{qtext}}</b> produced {{usercount}} {{usercount|pluralize:"result,results"}}.
+			<a href="/admin/user/list">Clear Search</a>
+			</div>
+			{% else %}
+			<div class="userlistheader">There are {{usercount}} total users.</div>
+			{% endifnotequal %}
+		{% else %}
+		<div class="userlistheader">There are {{usercount}} total users.</div>
+		{% endifnotequal %}
+			
+		<table class="userbox">
+		{% for up in userprofiles %}
+			<tr>
+				<!--<td class="avatar" >
+					<div class="avatar">
+						{% ifnotequal up.userimage None %}
+						<div><img src='/avatar?guser={{ up.email }}'></img></div>
+						{% else %}
+						<div><img src="/images/googleuser.png" style="width:50px;height:50px;"></img></div>
+						{% endifnotequal %}
+				</td>-->
+				<td class="leftalign">
+					<strong><a href="/user/{{ up.key|safe }}">{{ up.fname }} {{ up.lname }}</a></strong>
+				</td>
+				<td>
+					{{ up.accesslevel|usertype }}
+				</td>
+				<td class="leftalign">
+					<strong>{{ up.email }}</strong>
+				</td>
+				<td class="edit">
+					{% if showreportLinks %}
+					<div><span class="fakelink viewtraininghistory" key='{{ up.email }}' title="Open Learner Reportage page in a new window.">View Training Report</span></div>
+					{% endif %}
+				</td>
+				
+			</tr>
+		{% endfor %}
+		</table>
+		</div>
+		{% if morepages %}
+		<div class="pager">
+			<ul>
+			{% for i in pages %}
+				{% ifequal i page %}
+					<li class="active"><a href="/admin/user/list/{{ i }}{{qs|noNone}}">{{ i }}</a></li>
+				{% else %}
+					<li><a href="/admin/user/list/{{ i }}{{qs|noNone}}">{{ i }}</a></li>
+				{% endifequal %}
+			{% endfor %}
+			</ul>
+		</div>
+		{% endif %}
+	</div>
+	<div class=" col30">
+		<div class="rtCol">
+			<div class="infobox">
+				<p>Clicking <b>View Training Report</b> will open a window with a reportage report of all registrations that the user has started.</p>
+				<br/>
+			 	<p><a href="/useradminaction/import" title="Import the domain users into the SCORM Cloud App.">Import Domain Users</a> - import all new users from your google apps domain. (Existing users won't be imported again.)</p>
+				<!--<br/>
+				<p><a href="/useradminaction/update" title="Update user information from the Domain profiles.">Update Domain Users</a> - update your users with the latest data from your google apps domain.</p>-->
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+{% endblock %}

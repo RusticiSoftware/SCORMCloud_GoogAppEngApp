@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>{% block title %}Generic Page{% endblock %}</title>
+	<link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <link type="text/css" href="/stylesheets/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
+    <script type="text/javascript" src="/scripts/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="/scripts/jquery-ui-1.8.4.custom.min.js"></script>
+	<script type="text/javascript" src="/scripts/scormcloud_gae.js"></script>
+	{% block extrahead %}{% endblock %}
+	
+	<script type="text/javascript">
+	$(document).ready(function(){
+
+	});
+	
+	
+	function checkSubmit(){
+		var email = $('input[name="useremail"]').val();
+		if (email.length == 0){
+			$('.messagediv').text('Please enter an email to launch your training.').show();
+			return false;
+		}
+		else return true;
+	}
+	</script>
+		
+	
+	
+</head>
+<body>
+<div class="gappsheader">	
+
+	<div id="userheader">
+		<span>
+			<a id="help" href="/help">Help</a>
+			&nbsp;|&nbsp;
+			<a id="signout" href="{{ loginurl }}">Sign In</a>
+		</span>
+	</div>
+	<div id="logo">
+		SCORM Cloud App
+	</div>
+	
+	<div class="linedivider"></div>
+	<div id="headerContainer">
+		<div id="">
+			<table style="width:100%">
+				<tr>
+					<td>
+						<div id="siteheadtitle">
+							{{ sitetitle }}
+						</div>
+					</td>
+					<td style="width:400px">
+						
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div id="container">
+		<div id="topnav">
+			<h1>Training Launch</h1>
+			<ul class="navlinks">
+				<li>&nbsp;</li>
+			</ul>
+		</div>
+		<div id="nonuserlaunch" class='scormcloudContent'>
+			<div class="col60">
+				<div class="lftCol">
+					
+					<form action="/NonUserLaunch" method="post" enctype="multipart/form-data" onsubmit="return checkSubmit();">
+						<label for="useremail">Email: </label><input  class="email" name="useremail" type="text"/>
+						<input type="hidden" value="{{assignid}}" name="assignid" />
+						<input type="hidden" value="" name="userkey" />
+						<input type="submit" class="submitbtn" value="Launch Training"/>
+					</form>
+					<div class="messagediv {% ifequal message None %}nodisplay{% endifequal %}">{{message}}</div>
+					<br/><br/>
+					If you have an account with <b>{{appsdomain}}</b>, please click <a href="{{loginurl}}">here</a>.
+				</div>
+			</div>
+			<div class="col40">
+				<div class="rtCol">
+					<div class="infobox">
+						<p>Enter your email to continue to your training.</p>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	<div id="footerContainer">
+		<div>
+			<p class="rusticicopyright">© 2008-2010 Rustici Software</p>
+				<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif"
+				alt="Powered by Google App Engine" />
+		</div>
+	</div>
+</body>
+</html>
