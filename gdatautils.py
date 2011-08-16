@@ -191,8 +191,10 @@ def GetContactUserInfo(entry):
 	xmldoc = minidom.parseString(str(entry))
 	name = xmldoc.getElementsByTagNameNS('http://schemas.google.com/g/2005','name')
 	if name.length > 0:
-		contact['firstname'] = name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','givenName')[0].childNodes[0].nodeValue
-		contact['lastname'] = name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','familyName')[0].childNodes[0].nodeValue
+		if name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','givenName').length > 0 and name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','givenName')[0].childNodes.length > 0:
+			contact['firstname'] = name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','givenName')[0].childNodes[0].nodeValue
+		if name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','familyName').length > 0 and name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','familyName')[0].childNodes.length > 0:
+			contact['lastname'] = name[0].getElementsByTagNameNS('http://schemas.google.com/g/2005','familyName')[0].childNodes[0].nodeValue
 	return contact
 
 class GCalendarService(object):

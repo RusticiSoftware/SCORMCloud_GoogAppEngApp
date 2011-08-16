@@ -20,6 +20,15 @@ indexes:
 - kind: Assignments
   properties:
   - name: active
+  - name: createdbyuser
+  - name: duedate
+    direction: desc
+  - name: createddate
+    direction: desc
+
+- kind: Assignments
+  properties:
+  - name: active
   - name: duedate
     direction: desc
   - name: createddate
@@ -64,15 +73,6 @@ indexes:
 
 - kind: Assignments
   properties:
-  - name: duedate
-    direction: desc
-  - name: createddate
-    direction: desc
-
-- kind: Assignments
-  properties:
-  - name: active
-  - name: createdbyuser
   - name: duedate
     direction: desc
   - name: createddate

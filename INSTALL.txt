@@ -13,7 +13,7 @@ You will also need the Google App Engine Python SDK to upload the package to the
 
 Installation Instructions:
 
-1. Download and unzip the scormcloudapp.zip package from http://support.scorm.com/entries/277667-scorm-cloud-for-google-apps. (If you are reading this, then you likely have already done so.)
+1. Download SCORM Cloud App from https://github.com/RusticiSoftware/SCORMCloud_GoogAppEngApp. (If you are reading this, then you likely have already done so.)
 
 2. Login to your Google Apps Engine account and click the "Create an Application" button. On the create application page:
  	1. Create a unique application identifier for the app. (This needs to be universally unique in the app engine system, so maybe name it "scormcloud_<your organization>" or something like that.)
