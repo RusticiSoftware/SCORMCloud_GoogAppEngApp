@@ -31,5 +31,3 @@ if __name__ == '__main__':
         this_dir, os.pardir, os.pardir
         )))
     unittest.main(defaultTest='test_suite')
-
-

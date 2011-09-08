@@ -42,84 +42,84 @@ KML_CONTENT_TYPE = 'application/vnd.google-earth.kml+xml'
 KML_NAMESPACE = 'http://www.opengis.net/kml/2.2'
 
 class MapsDataEntry(gdata.data.GDEntry):
-  """Adds convenience methods inherited by all Maps Data entries."""
+    """Adds convenience methods inherited by all Maps Data entries."""
 
-  def get_user_id(self):
-    """Extracts the user ID of this entry."""
-    if self.id.text:
-      match = self.__class__.atom_id_pattern.search(self.id.text)
-      if match:
-        return match.group('user_id')
-    return None
+    def get_user_id(self):
+        """Extracts the user ID of this entry."""
+        if self.id.text:
+            match = self.__class__.atom_id_pattern.search(self.id.text)
+            if match:
+                return match.group('user_id')
+        return None
 
-  GetUserId = get_user_id
+    GetUserId = get_user_id
 
-  def get_map_id(self):
-    """Extracts the map ID of this entry."""
-    if self.id.text:
-      match = self.__class__.atom_id_pattern.search(self.id.text)
-      if match:
-        return match.group('map_id')
-    return None
+    def get_map_id(self):
+        """Extracts the map ID of this entry."""
+        if self.id.text:
+            match = self.__class__.atom_id_pattern.search(self.id.text)
+            if match:
+                return match.group('map_id')
+        return None
 
-  GetMapId = get_map_id
+    GetMapId = get_map_id
 
 
 class Map(MapsDataEntry):
-  """Represents a map which belongs to the user."""
-  atom_id_pattern = MAP_ATOM_ID_PATTERN
+    """Represents a map which belongs to the user."""
+    atom_id_pattern = MAP_ATOM_ID_PATTERN
 
 
 class MapFeed(gdata.data.GDFeed):
-  """Represents an atom feed of maps."""
-  entry = [Map]
+    """Represents an atom feed of maps."""
+    entry = [Map]
 
 
 class KmlContent(atom.data.Content):
-  """Represents an atom content element that encapsulates KML content."""
+    """Represents an atom content element that encapsulates KML content."""
 
-  def __init__(self, **kwargs):
-    super(KmlContent, self).__init__(type=KML_CONTENT_TYPE, **kwargs)
-    if 'kml' in kwargs:
-      self.kml = kwargs['kml']
+    def __init__(self, **kwargs):
+        super(KmlContent, self).__init__(type=KML_CONTENT_TYPE, **kwargs)
+        if 'kml' in kwargs:
+            self.kml = kwargs['kml']
 
-  def _get_kml(self):
-    if self.children:
-      return self.children[0]
-    else:
-      return ''
+    def _get_kml(self):
+        if self.children:
+            return self.children[0]
+        else:
+            return ''
 
-  def _set_kml(self, kml):
-    if not kml:
-      self.children = []
-      return
+    def _set_kml(self, kml):
+        if not kml:
+            self.children = []
+            return
 
-    if type(kml) == str:
-      kml = atom.core.parse(kml)
-      if not kml.namespace:
-        kml.namespace = KML_NAMESPACE
+        if type(kml) == str:
+            kml = atom.core.parse(kml)
+            if not kml.namespace:
+                kml.namespace = KML_NAMESPACE
 
-    self.children = [kml]
+        self.children = [kml]
 
-  kml = property(_get_kml, _set_kml)
+    kml = property(_get_kml, _set_kml)
 
 
 class Feature(MapsDataEntry):
-  """Represents a single feature in a map."""
-  atom_id_pattern = FEATURE_ATOM_ID_PATTERN
-  content = KmlContent
+    """Represents a single feature in a map."""
+    atom_id_pattern = FEATURE_ATOM_ID_PATTERN
+    content = KmlContent
 
-  def get_feature_id(self):
-    """Extracts the feature ID of this feature."""
-    if self.id.text:
-      match = self.__class__.atom_id_pattern.search(self.id.text)
-      if match:
-        return match.group('feature_id')
-    return None
+    def get_feature_id(self):
+        """Extracts the feature ID of this feature."""
+        if self.id.text:
+            match = self.__class__.atom_id_pattern.search(self.id.text)
+            if match:
+                return match.group('feature_id')
+        return None
 
-  GetFeatureId = get_feature_id
+    GetFeatureId = get_feature_id
 
 
 class FeatureFeed(gdata.data.GDFeed):
-  """Represents an atom feed of features."""
-  entry = [Feature]
+    """Represents an atom feed of features."""
+    entry = [Feature]

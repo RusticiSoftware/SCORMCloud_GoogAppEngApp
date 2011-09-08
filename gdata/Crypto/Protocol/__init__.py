@@ -1,4 +1,3 @@
-
 """Cryptographic protocols
 
 Implements various cryptographic protocols.  (Don't expect to find

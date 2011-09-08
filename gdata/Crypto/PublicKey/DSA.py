@@ -1,4 +1,3 @@
-
 #
 #   DSA.py : Digital Signature Algorithm
 #

@@ -116,7 +116,7 @@ class StaticTzInfo(BaseTzInfo):
 
     def __reduce__(self):
         # Special pickle to zone remains a singleton and to cope with
-        # database changes. 
+        # database changes.
         return pytz._p, (self.zone,)
 
 
@@ -538,4 +538,3 @@ def unpickler(zone, utcoffset=None, dstoffset=None, tzname=None):
     inf = (utcoffset, dstoffset, tzname)
     tz._tzinfos[inf] = tz.__class__(inf, tz._tzinfos)
     return tz._tzinfos[inf]
-

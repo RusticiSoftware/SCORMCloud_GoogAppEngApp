@@ -30,26 +30,24 @@ GACL_TEMPLATE = '{http://schemas.google.com/acl/2007}%s'
 
 
 class AclRole(atom.core.XmlElement):
-  """Describes the role of an entry in an access control list."""
-  _qname = GACL_TEMPLATE % 'role'
-  value = 'value'
+    """Describes the role of an entry in an access control list."""
+    _qname = GACL_TEMPLATE % 'role'
+    value = 'value'
 
 
 class AclScope(atom.core.XmlElement):
-  """Describes the scope of an entry in an access control list."""
-  _qname = GACL_TEMPLATE % 'scope'
-  type = 'type'
-  value = 'value'
+    """Describes the scope of an entry in an access control list."""
+    _qname = GACL_TEMPLATE % 'scope'
+    type = 'type'
+    value = 'value'
 
 
 class AclEntry(gdata.data.GDEntry):
-  """Describes an entry in a feed of an access control list (ACL)."""
-  scope = AclScope
-  role = AclRole
+    """Describes an entry in a feed of an access control list (ACL)."""
+    scope = AclScope
+    role = AclRole
 
 
 class AclFeed(gdata.data.GDFeed):
-  """Describes a feed of an access control list (ACL)."""
-  entry = [AclEntry]
-
-
+    """Describes a feed of an access control list (ACL)."""
+    entry = [AclEntry]

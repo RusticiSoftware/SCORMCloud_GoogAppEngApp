@@ -232,4 +232,3 @@ class AsyncStateMachine:
         except:
             self._clear()
             raise
-

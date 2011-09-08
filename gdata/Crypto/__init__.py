@@ -1,4 +1,3 @@
-
 """Python Cryptography Toolkit
 
 A collection of cryptographic modules implementing various algorithms
@@ -21,5 +20,3 @@ __all__ = ['Cipher', 'Hash', 'Protocol', 'PublicKey', 'Util']
 
 __version__ = '2.0.1'
 __revision__ = "$Id: __init__.py,v 1.12 2005/06/14 01:20:22 akuchling Exp $"
-
-
