@@ -15,7 +15,6 @@ from pytz import timezone
 
 from models import *
 from modelutils import *
-from scormcloud import *
 from gdatautils import *
 from viewutils import *
 

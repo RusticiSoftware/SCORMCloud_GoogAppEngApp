@@ -15,8 +15,8 @@ from google.appengine.api import users
 
 from models import *
 from modelutils import *
-from scormcloud import *
 
+cloud = GetCloudService()
 
 # decorators
 def loginRequired(func):
@@ -115,13 +115,11 @@ def checkConnection(func):
     return wrapper
 
 def CheckAuthCloudPing():
-    settings = GetSettings()
-    dsvc = DebugService(settings.appid,settings.secretkey,settings.servicehost)
-    return dsvc.CloudAuthPing()
+    dsvc = cloud.get_debug_service()
+    return dsvc.authping()
 def CheckCloudPing():
-    settings = GetSettings()
-    dsvc = DebugService(settings.appid,settings.secretkey,settings.servicehost)
-    return dsvc.CloudPing()
+    dsvc = cloud.get_debug_service()
+    return dsvc.ping()
 
 
 def roleRequired(role):

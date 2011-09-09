@@ -17,11 +17,6 @@ from xml.dom import minidom
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
-from scormcloud import UploadService
-from scormcloud import CourseService
-from scormcloud import RegistrationService
-from scormcloud import ReportingService
-from scormcloud import WidgetSettings
 from google.appengine.ext.db import Key
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -32,8 +27,6 @@ from django.utils import simplejson
 from django.core.paginator import Paginator, InvalidPage
 
 from pytz import common_timezones
-
-
 
 from models import *
 from decorators import *
@@ -209,9 +202,8 @@ class PreviewCourse(webapp.RequestHandler):
         redirecturl = self.request.get('redirecturl')
         if redirecturl is None:
             redirecturl = "http://" + self.request.headers['Host'] + "/course/detail/" + cid
-        settings = GetSettings()
-        csvc = CourseService(settings.appid,settings.secretkey,settings.servicehost)
-        self.response.out.write('<script language="javascript">window.document.location.href="'+csvc.GetPreviewLink(cid,redirecturl)+'";</script>')
+        csvc = cloud.get_course_service()
+        self.response.out.write('<script language="javascript">window.document.location.href="'+csvc.get_preview_url(cid,redirecturl)+'";</script>')
 
 
 
@@ -220,11 +212,9 @@ class LaunchCourse(webapp.RequestHandler):
     def get(self,regid):
         redirecturl = "http://" + self.request.headers['Host'] + "/course/exit"
         UpdateRegAccessDate(regid)
-        settings = GetSettings()
+        regsvc = cloud.get_registration_service()
 
-        regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
-
-        self.redirect(regsvc.GetLaunchLink(regid, redirecturl,GetCourseTags(GetRegCourseId(regid),','),GetLearnerTags(GetRegUserId(regid),','),GetRegistrationTags(regid,',')))
+        self.redirect(regsvc.get_launch_url(regid, redirecturl,GetCourseTags(GetRegCourseId(regid),','),GetLearnerTags(GetRegUserId(regid),','),GetRegistrationTags(regid,',')))
 
 class NonUserLaunch(webapp.RequestHandler):
     def post(self):
@@ -238,11 +228,10 @@ class NonUserLaunch(webapp.RequestHandler):
             regid = GetRegIdFromUserAssignment(str(ups.key()),assignment)
             if regid is not None:
                 UpdateRegAccessDate(regid)
-                settings = GetSettings()
                 redirecturl = "http://" + self.request.headers['Host'] + "/course/exit"
-                regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
+                regsvc = cloud.get_registration_service()
 
-                self.redirect(regsvc.GetLaunchLink(regid, redirecturl,GetCourseTags(GetRegCourseId(regid),','),GetLearnerTags(GetRegUserId(regid),','),GetRegistrationTags(regid,',')))
+                self.redirect(regsvc.get_launch_url(regid, redirecturl,GetCourseTags(GetRegCourseId(regid),','),GetLearnerTags(GetRegUserId(regid),','),GetRegistrationTags(regid,',')))
             else:
                 notrainingmsg = "The email entered is not associated with the assignment being launched. Please check the email you entered."
         else:
@@ -315,11 +304,10 @@ class LaunchAssignment(webapp.RequestHandler):
                     regid = GetRegIdFromUserAssignment(str(ups.key()),assignment)
                     if regid is not None:
                         UpdateRegAccessDate(regid)
-                        settings = GetSettings()
                         redirecturl = "http://" + self.request.headers['Host'] + "/course/exit"
-                        regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
+                        regsvc = cloud.get_registration_service()
 
-                        self.redirect(regsvc.GetLaunchLink(regid, redirecturl,GetCourseTags(GetRegCourseId(regid),','),GetLearnerTags(GetRegUserId(regid),','),GetRegistrationTags(regid,',')))
+                        self.redirect(regsvc.get_launch_url(regid, redirecturl,GetCourseTags(GetRegCourseId(regid),','),GetLearnerTags(GetRegUserId(regid),','),GetRegistrationTags(regid,',')))
                     else:
                         msg = UserMessages(guser=user.user_id(),msgtype="warning")
                         msg.message = "You have not been assigned the training you attempted to launch, '" + GetCourseTitle(assignment.courseid) + "'."
@@ -332,19 +320,17 @@ class NewRegLaunchCourse(webapp.RequestHandler):
         if courseid:
             regid = CreateNewRegistration(GetUserKeyFromGuser(users.get_current_user().user_id()), courseid, None)
         UpdateRegAccessDate(regid)
-        settings = GetSettings()
         redirecturl = "http://" + self.request.headers['Host'] + "/course/exit"
-        regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
+        regsvc = cloud.get_registration_service()
 
-        self.redirect(regsvc.GetLaunchLink(regid, redirecturl))
+        self.redirect(regsvc.get_launch_url(regid, redirecturl))
 
 class CourseExit(webapp.RequestHandler):
     def get(self):
 
-        settings = GetSettings()
         #get the reg results from the cloud
-        regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
-        data = regsvc.GetRegistrationResults(self.request.get('regid'),'course')
+        regsvc = cloud.get_registration_service()
+        data = regsvc.get_registration_result(self.request.get('regid'),'course')
         xmldoc = minidom.parseString(data)
         complete = xmldoc.getElementsByTagName("complete")[0].childNodes[0].nodeValue
         success = xmldoc.getElementsByTagName("success")[0].childNodes[0].nodeValue
@@ -453,11 +439,9 @@ class RegReport(webapp.RequestHandler):
     @loginRequired
     def get(self,regid):
         regs = db.GqlQuery("SELECT * FROM Registration WHERE regid = :1", regid)
-        settings = GetSettings()
         #create the scorm cloud registration
-        regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
-
-        data = regsvc.GetRegistrationResults(regid, 'full')
+        regsvc = cloud.get_registration_service()
+        data = regsvc.get_registration_result(regid, 'full')
 
         self.template_values = {'coursetitle': GetCourseTitle(regs[0].courseid)
                                                 ,'regxml': data
@@ -469,11 +453,10 @@ class RegReport(webapp.RequestHandler):
 class LaunchHistoryReport(webapp.RequestHandler):
     @loginRequired
     def get(self,regid):
-        settings = GetSettings()
         regs = db.GqlQuery("SELECT * FROM Registration WHERE regid = :1", regid)
         #create the scorm cloud registration
-        regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
-        data = regsvc.GetLaunchHistory(regid)
+        regsvc = cloud.get_registration_service()
+        data = regsvc.get_launch_history(regid)
 
         self.template_values = {'coursetitle': GetCourseTitle(regs[0].courseid)
                                                 ,'regxml': data

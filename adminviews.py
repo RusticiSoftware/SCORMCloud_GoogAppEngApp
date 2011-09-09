@@ -28,19 +28,13 @@ from modelutils import *
 from decorators import *
 from viewutils import *
 from assignutils import *
-from scormcloud.client import ScormCloudService
-from scormcloud.client import ScormCloudUtilities
 from gdatautils import *
 
 
 template.register_template_library('templatetags.seconds_to_duration')
 template.register_template_library('templatetags.scormcloud_filters')
 
-settings = GetSettings()
-origin = ScormCloudUtilities.get_canonical_origin_string('Rustici Software',
-            'Google App Engine', '2.0')
-cloud = ScormCloudService.withargs(settings.appid, settings.secretkey, 
-                                   settings.servicehost, origin)
+cloud = GetCloudService()
 
 
 # *******************************************

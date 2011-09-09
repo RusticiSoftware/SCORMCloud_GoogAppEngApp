@@ -10,12 +10,20 @@ from google.appengine.api import users
 from google.appengine.api import images
 from google.appengine.api import memcache
 
-from scormcloud import *
+from scormcloud.client import ScormCloudService
+from scormcloud.client import ScormCloudUtilities
 from models import *
 
 # **********************************
 #               Settings
 # **********************************
+
+def GetCloudService():
+    settings = GetSettings()
+    origin = ScormCloudUtilities.get_canonical_origin_string('Rustici Software',
+                'Google App Engine', '2.0')
+    return ScormCloudService.withargs(settings.appid, settings.secretkey,
+                                      settings.servicehost, origin)
 
 def GetSettings():
     s = memcache.get('current_settings')
@@ -427,12 +435,10 @@ def UpdateRegAccessDate(regid):
 
 def CreateNewRegistration(userkey, courseid, assignment=None):
     oUser = GetUserProfileFromUserId(userkey)
-    settings = GetSettings()
-
-    regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
+    regsvc = cloud.get_registration_service()
     fname = oUser.fname or oUser.lname or oUser.email
     lname = oUser.lname or oUser.email
-    regid = regsvc.CreateNewRegistration(courseid, str(oUser.key()), fname, lname)
+    regid = regsvc.create_registration(courseid=courseid, userid=str(oUser.key()), fname=fname, lname=lname)
     #now create one in the GQL table
     reg = Registration()
     reg.regid = regid
@@ -447,10 +453,9 @@ def CreateNewRegistration(userkey, courseid, assignment=None):
     return regid
 
 def DeleteRegistration(regid):
-    settings = GetSettings()
     #delete from the cloud
-    regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
-    cloudresult = regsvc.DeleteRegistration(regid)
+    regsvc = cloud.get_registration_service()
+    cloudresult = regsvc.delete_registration(regid)
     #need to check for success here:
     #but for now...
     #delete from local tables
@@ -459,10 +464,8 @@ def DeleteRegistration(regid):
         r.delete()
 
 def ResetRegistration(regid):
-    settings = GetSettings()
-
-    regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
-    cloudresult = regsvc.ResetRegistration(regid)
+    regsvc = cloud.get_registration_service()
+    cloudresult = regsvc.reset_registration(regid)
     #need to check for success here:
     #but for now...
     #delete from local tables
