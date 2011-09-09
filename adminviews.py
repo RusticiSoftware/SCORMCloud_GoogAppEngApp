@@ -28,12 +28,20 @@ from modelutils import *
 from decorators import *
 from viewutils import *
 from assignutils import *
-from scormcloud import *
+from scormcloud.client import ScormCloudService
+from scormcloud.client import ScormCloudUtilities
 from gdatautils import *
 
 
 template.register_template_library('templatetags.seconds_to_duration')
 template.register_template_library('templatetags.scormcloud_filters')
+
+settings = GetSettings()
+origin = ScormCloudUtilities.get_canonical_origin_string('Rustici Software',
+            'Google App Engine', '2.0')
+cloud = ScormCloudService.withargs(settings.appid, settings.secretkey, 
+                                   settings.servicehost, origin)
+
 
 # *******************************************
 # ****                  Settings Views
@@ -57,23 +65,23 @@ class SettingsForm(webapp.RequestHandler):
             settings.put()
 
         timezones = common_timezones
-
-
-        self.template_values = {'settings':settings
-                                                        ,'timezones':timezones
-                                                        ,'enablereminders': settings.enablereminders and "checked" or ""
-                                                        ,'enableautoexpire': settings.enableautoexpire and "checked" or ""
-                                                        ,'tab': self.request.get('tab') or None
-                                                        }
-
+        self.template_values = {'settings': settings,
+                                'timezones': timezones,
+                                'enablereminders':(settings.enablereminders and 
+                                        "checked" or ""),
+                                'enableautoexpire': (settings.enableautoexpire 
+                                        and "checked" or ""),
+                                'tab': self.request.get('tab') or None }
         page_display(self,"templates/settingsform.html")
+
 
 class SettingsAction(webapp.RequestHandler):
     @loginRequired
     @adminRequired
     def post(self):
         s = GetSettings()
-        if self.request.get('sitetitle') and self.request.get('sitetitle') != '':
+        if self.request.get('sitetitle') and 
+            self.request.get('sitetitle') != '':
             s.sitetitle = self.request.get('sitetitle')
         if self.request.get('appid'):
             s.appid = self.request.get('appid')
@@ -83,23 +91,27 @@ class SettingsAction(webapp.RequestHandler):
             s.servicehost = self.request.get('servicehost')
         if self.request.get('appsdomain'):
             s.appsdomain = self.request.get('appsdomain')
-        if self.request.get('starttext') and self.request.get('starttext') != '':
+        if self.request.get('starttext') 
+            and self.request.get('starttext') != '':
             s.starttext = self.request.get('starttext')
-        if self.request.get('startlogo') and self.request.get('startlogo') != '':
+        if self.request.get('startlogo') 
+            and self.request.get('startlogo') != '':
             s.startlogo = self.request.get('startlogo')
         if self.request.get('duetime'):
-            #strTime = self.request.get('duetime')
-            s.duetime = datetime.datetime.strptime(self.request.get('duetime'), "%H:%M").time()
+            s.duetime = datetime.datetime.strptime(self.request.get('duetime'),
+                "%H:%M").time()
         if self.request.get('timezone'):
             s.calendartimezone = self.request.get('timezone')
         if self.request.get('remindersender'):
             s.remindersender = self.request.get('remindersender')
             if self.request.get('enablereminders'):
-                s.enablereminders = (self.request.get('enablereminders') == "on")
+                s.enablereminders = (self.request.get('enablereminders') == 
+                    "on")
             else:
                 s.enablereminders = False
             if self.request.get('enableautoexpire'):
-                s.enableautoexpire = (self.request.get('enableautoexpire') == "on")
+                s.enableautoexpire = (self.request.get('enableautoexpire') == 
+                    "on")
             else:
                 s.enableautoexpire = False
         if self.request.get("defaultavatar"):
@@ -117,7 +129,7 @@ class SettingsAction(webapp.RequestHandler):
 class UserList(webapp.RequestHandler):
     @loginRequired
     @roleRequired("6")
-    def get(self,page=1):
+    def get(self, page=1):
         try:
             page = int(page)
         except:
@@ -134,18 +146,18 @@ class UserList(webapp.RequestHandler):
         paginator = Paginator(userprofiles,10)
 
         self.template_values = {
-    "userprofiles" : paginator.page(page).object_list
-                ,"usercount":len(userprofiles)
-    ,"pages" : paginator.page_range
-                ,"morepages" : (paginator.num_pages > 1)
-    ,"page" : page
-                ,'qtype':qtype
-                ,'qtext':qtext
-                ,'qs':querystring
-                ,'showreportLinks':CheckAuthCloudPing()
+            'userprofiles': paginator.page(page).object_list,
+            'usercount': len(userprofiles),
+            'pages': paginator.page_range,
+            'morepages': (paginator.num_pages > 1),
+            'page': page,
+            'qtype': qtype,
+            'qtext': qtext,
+            'qs': querystring,
+            'showreportLinks': CheckAuthCloudPing()
         }
-
         page_display(self,"templates/userlist.html")
+
 
 class UserDetails(webapp.RequestHandler):
     @loginRequired
@@ -163,11 +175,10 @@ class UserDetails(webapp.RequestHandler):
                     reg.assignment.duedate = AdjustTimeZone(reg.assignment.duedate)
                 userregs.append(reg)
 
-        self.template_values = {'userprofile':userprofile
-                                                        ,'userregs':userregs
-                                                        }
-
+        self.template_values = {'userprofile':userprofile,
+                                'userregs':userregs}
         page_display(self,"templates/userdetails.html")
+
 
 class UserAdminForm(webapp.RequestHandler):
     @loginRequired
@@ -312,11 +323,11 @@ class UploadForm(webapp.RequestHandler):
 
     def get(self):
         settings = GetSettings()
-        upsvc = UploadService(settings.appid,settings.secretkey,settings.servicehost)
+        upsvc = cloud.get_upload_service()
 
         importurl = "http://" + self.request.headers['Host'] + "/course/import"
-        CloudUploadLink = upsvc.GetUploadLink(importurl)
-        self.template_values = {'action': CloudUploadLink}
+        clouduploadurl = upsvc.get_upload_url(importurl)
+        self.template_values = {'action': clouduploadurl}
 
         page_display(self,"templates/uploadform.html")
 
@@ -325,14 +336,13 @@ class Importer(webapp.RequestHandler):
     @loginRequired
     @roleRequired("5")
     def get(self):
-        settings = GetSettings()
         #import the course to the cloud
-        csvc = CourseService(settings.appid,settings.secretkey,settings.servicehost)
-        course = csvc.ImportCourse(self.request.get('location'))
+        csvc = cloud.get_course_service()
+        course = csvc.import_uploaded_couse(path=self.request.get('location'))
 
         courseid = course.courseid
 
-        metadataXml = csvc.GetCourseMetadata(courseid)
+        metadataXml = csvc.get_metadata(courseid)
         metadataDom = minidom.parseString(metadataXml)
         desc = metadataDom.getElementsByTagName("description")
         description = None
@@ -367,11 +377,10 @@ class AddCloudCourseAction(webapp.RequestHandler):
     @loginRequired
     @roleRequired("5")
     def post(self):
-        settings = GetSettings()
         courseid = self.request.get('cloudcourseid')
 
-        csvc = CourseService(settings.appid,settings.secretkey,settings.servicehost)
-        metadataXml = csvc.GetCourseMetadata(courseid)
+        csvc = cloud.get_course_service()
+        metadataXml = csvc.get_metadata(courseid)
         metadataDom = minidom.parseString(metadataXml)
         desc = metadataDom.getElementsByTagName("description")
         description = None
@@ -402,7 +411,6 @@ class CourseList(webapp.RequestHandler):
     @roleRequired("5")
     @checkConnection
     def get(self,page=1):
-        settings = GetSettings()
         try:
             page = int(page)
         except:
@@ -421,8 +429,8 @@ class CourseList(webapp.RequestHandler):
             querystring = None
             allAppcourses = courses
 
-        csvc = CourseService(settings.appid,settings.secretkey,settings.servicehost)
-        cloudCourses =  csvc.GetCourseList()
+        csvc = cloud.get_course_service()
+        cloudCourses =  csvc.get_course_list()
 
 
         coursecount = courses is not None and len(courses) or 0
@@ -458,12 +466,10 @@ class CourseList(webapp.RequestHandler):
 
         paginator = Paginator(allcourses,10)
 
-        upsvc = UploadService(settings.appid,settings.secretkey,settings.servicehost)
+        upsvc = cloud.get_upload_service()
 
         importurl = "http://" + self.request.headers['Host'] + "/course/import"
-        CloudUploadLink = upsvc.GetUploadLink(importurl)
-
-
+        clouduploadurl = upsvc.get_upload_url(importurl)
 
         self.template_values = {
     "courses" : paginator.page(page).object_list
@@ -471,7 +477,7 @@ class CourseList(webapp.RequestHandler):
     ,"pages" : paginator.page_range
                 ,"morepages" : (paginator.num_pages > 1)
     ,"page" : page
-                ,'uploadaction': CloudUploadLink
+                ,'uploadaction': clouduploadurl 
                 ,'showcloudcourse': (len(cloudCourses) > 0)
                 ,'cloudcourses':cloudCourses
                 ,'qtype':qtype
@@ -486,12 +492,10 @@ class CourseAdminDetail(webapp.RequestHandler):
     @loginRequired
     @roleRequired("5")
     def get(self, courseid):
-        settings = GetSettings()
         course = GetCourse(courseid)
         #get the course metadata from the cloud
-        csvc = CourseService(settings.appid,settings.secretkey,settings.servicehost)
-
-        rsvc = ReportingService(settings.appid,settings.secretkey,settings.servicehost)
+        csvc = cloud.get_course_service()
+        rsvc = cloud.get_reporting_service()
 
         tags = TagSettings()
         #tags.AddTag('registration',settings.appsdomain)
@@ -501,7 +505,7 @@ class CourseAdminDetail(webapp.RequestHandler):
         widgetSettings.showTitle = True
         widgetSettings.divname = 'CourseSummary'
 
-        reportageUrl = rsvc.GetWidgetUrl(rsvc.GetReportageAuth('NONAV','true'),'courseSummary',widgetSettings)
+        reportageUrl = rsvc.get_widget_url(rsvc.get_reportage_auth('NONAV','true'),'courseSummary',widgetSettings)
 
         userregs = []
         regs = GetCourseRegs(courseid)
@@ -559,13 +563,12 @@ class DeleteCourse(webapp.RequestHandler):
     @roleRequired("5")
     def get(self,courseid):
         if courseid:
-            settings = GetSettings()
 
             course = GetCourse(courseid)
             if course.gappimport:
                 #delete from the cloud
-                csvc = CourseService(settings.appid,settings.secretkey,settings.servicehost)
-                csvc.DeleteCourse(courseid)
+                csvc = cloud.get_course_service()
+                csvc.delete_course(courseid)
 
             #delete from the local data
             DbDeleteCourse(courseid)
@@ -646,9 +649,6 @@ class RegList(webapp.RequestHandler):
     @loginRequired
     @adminRequired
     def get(self,regid):
-        settings = GetSettings()
-        regsvc = RegistrationService(settings.appid,settings.secretkey,settings.servicehost)
-
         regs = db.GqlQuery("SELECT * FROM Registration ORDER BY created_date DESC LIMIT 100")
         output = '<table>'
         output += '<thead><tr><th>Course Title</th><th>Created Date</th><th></th></tr></thead>'
@@ -788,8 +788,6 @@ class DeleteAssignment(webapp.RequestHandler):
     @roleRequired("6")
     def get(self,assignid):
         if assignid:
-            settings = GetSettings()
-
             DbDeleteAssignment(assignid)
 
             self.redirect('/registration/assign')
@@ -800,7 +798,6 @@ class AssignAction(webapp.RequestHandler):
     @loginRequired
     @roleRequired("6")
     def post(self):
-        settings = GetSettings()
         domain = GetAppsDomain()
 
         assignment = Assignments()
@@ -1154,26 +1151,25 @@ class ReportageUrl(webapp.RequestHandler):
         courseid = self.request.get('courseid') or None
         userid = self.request.get('userid') or None
 
-        settings = GetSettings()
-        rsvc = ReportingService(settings.appid,settings.secretkey,settings.servicehost)
+        rsvc = cloud.get_reporting_service()
 
         if email is not None:
             userprofile = GetUserProfileFromEmail(email)
             ukey = str(userprofile.key())
-            reporturl = rsvc.GetReportageServiceUrl() + '/Reportage/reportage.php?learnerId=' + ukey + '&appId=' + settings.appid
+            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?learnerId=' + ukey + '&appId=' + settings.appid
         elif regid is not None:
-            reporturl = rsvc.GetReportageServiceUrl() + '/Reportage/reportage.php?registrationId=' + regid + '&appId=' + settings.appid
+            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?registrationId=' + regid + '&appId=' + settings.appid
         elif courseid is not None:
-            reporturl = rsvc.GetReportageServiceUrl() + '/Reportage/reportage.php?courseId=' + courseid + '&appId=' + settings.appid
+            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?courseId=' + courseid + '&appId=' + settings.appid
         elif userid is not None:
-            reporturl = rsvc.GetReportageServiceUrl() + '/Reportage/reportage.php?learnerId=' + userid + '&appId=' + settings.appid
+            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?learnerId=' + userid + '&appId=' + settings.appid
 
 
         else:
-            reporturl = rsvc.GetReportageServiceUrl() + '/Reportage/reportage.php?appId=' + settings.appid
+            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?appId=' + settings.appid
 
 
-        reportageUrl = rsvc.GetReportUrl(rsvc.GetReportageAuth('FULLNAV','true'),reporturl)
+        reportageUrl = rsvc.get_report_url(rsvc.get_reportage_auth('FULLNAV','true'),reporturl)
         #logging.info('reportUrl: ' + str(reportageUrl))
 
         self.response.out.write(str(reportageUrl))
@@ -1182,7 +1178,6 @@ class Reports(webapp.RequestHandler):
     @loginRequired
     @roleRequired("6")
     def get(self):
-        settings = GetSettings()
         regtype = self.request.get('regtype') or 'assign'
         poptype = self.request.get('pop') or 'all'
         datetype = self.request.get('date') or 'all'
@@ -1223,12 +1218,12 @@ class Reports(webapp.RequestHandler):
         apage = self.request.get('apage') and int(self.request.get('apage')) or 1
         apaginator = Paginator(regObjects,20)
 
-        rsvc = ReportingService(settings.appid,settings.secretkey,settings.servicehost)
+        rsvc = cloud.get_reporting_service()
 
-        repAuth = rsvc.GetReportageAuth('NONAV','true')
+        repAuth = rsvc.get_reportage_auth('NONAV','true')
         if repAuth is not None:
-            reporturl = rsvc.GetReportageServiceUrl() + '/Reportage/reportage.php?appId=' + settings.appid
-            reportageLaunchUrl = rsvc.GetReportUrl(repAuth,reporturl)
+            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?appId=' + settings.appid
+            reportageLaunchUrl = rsvc.get_report_url(repAuth,reporturl)
         else:
             reportageLaunchUrl = None
 
