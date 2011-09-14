@@ -435,10 +435,11 @@ def UpdateRegAccessDate(regid):
 
 def CreateNewRegistration(userkey, courseid, assignment=None):
     oUser = GetUserProfileFromUserId(userkey)
+    cloud = GetCloudService()
     regsvc = cloud.get_registration_service()
     fname = oUser.fname or oUser.lname or oUser.email
     lname = oUser.lname or oUser.email
-    regid = regsvc.create_registration(courseid=courseid, userid=str(oUser.key()), fname=fname, lname=lname)
+    regid = regsvc.create_registration(regid=None, courseid=courseid, userid=str(oUser.key()), fname=fname, lname=lname)
     #now create one in the GQL table
     reg = Registration()
     reg.regid = regid
@@ -454,6 +455,7 @@ def CreateNewRegistration(userkey, courseid, assignment=None):
 
 def DeleteRegistration(regid):
     #delete from the cloud
+    cloud = GetCloudService()
     regsvc = cloud.get_registration_service()
     cloudresult = regsvc.delete_registration(regid)
     #need to check for success here:
@@ -464,6 +466,7 @@ def DeleteRegistration(regid):
         r.delete()
 
 def ResetRegistration(regid):
+    cloud = GetCloudService()
     regsvc = cloud.get_registration_service()
     cloudresult = regsvc.reset_registration(regid)
     #need to check for success here:

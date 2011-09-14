@@ -2,6 +2,7 @@ import cgi
 import os
 import datetime
 import logging
+import uuid
 from xml.dom import minidom
 
 from google.appengine.api import users
@@ -22,6 +23,8 @@ from django import http
 import pytz
 from pytz import timezone
 from pytz import common_timezones
+
+from scormcloud.client import *
 
 from models import *
 from modelutils import *
@@ -74,8 +77,8 @@ class SettingsAction(webapp.RequestHandler):
     @adminRequired
     def post(self):
         s = GetSettings()
-        if self.request.get('sitetitle') and 
-            self.request.get('sitetitle') != '':
+        if (self.request.get('sitetitle') and 
+            self.request.get('sitetitle') != ''):
             s.sitetitle = self.request.get('sitetitle')
         if self.request.get('appid'):
             s.appid = self.request.get('appid')
@@ -85,11 +88,11 @@ class SettingsAction(webapp.RequestHandler):
             s.servicehost = self.request.get('servicehost')
         if self.request.get('appsdomain'):
             s.appsdomain = self.request.get('appsdomain')
-        if self.request.get('starttext') 
-            and self.request.get('starttext') != '':
+        if (self.request.get('starttext') 
+            and self.request.get('starttext') != ''):
             s.starttext = self.request.get('starttext')
-        if self.request.get('startlogo') 
-            and self.request.get('startlogo') != '':
+        if (self.request.get('startlogo') 
+            and self.request.get('startlogo') != ''):
             s.startlogo = self.request.get('startlogo')
         if self.request.get('duetime'):
             s.duetime = datetime.datetime.strptime(self.request.get('duetime'),
@@ -332,12 +335,12 @@ class Importer(webapp.RequestHandler):
     def get(self):
         #import the course to the cloud
         csvc = cloud.get_course_service()
-        course = csvc.import_uploaded_couse(path=self.request.get('location'))
+        courseid = str(uuid.uuid1())
+        courses = csvc.import_uploaded_course(courseid, self.request.get('location'))
 
-        courseid = course.courseid
+        course = courses[0]
 
-        metadataXml = csvc.get_metadata(courseid)
-        metadataDom = minidom.parseString(metadataXml)
+        metadataDom = csvc.get_metadata(courseid)
         desc = metadataDom.getElementsByTagName("description")
         description = None
         if desc.length > 0 and desc[0].childNodes.length > 0:
@@ -374,8 +377,7 @@ class AddCloudCourseAction(webapp.RequestHandler):
         courseid = self.request.get('cloudcourseid')
 
         csvc = cloud.get_course_service()
-        metadataXml = csvc.get_metadata(courseid)
-        metadataDom = minidom.parseString(metadataXml)
+        metadataDom = csvc.get_metadata(courseid)
         desc = metadataDom.getElementsByTagName("description")
         description = None
         if desc.length > 0 and desc[0].childNodes.length > 0:
@@ -424,7 +426,7 @@ class CourseList(webapp.RequestHandler):
             allAppcourses = courses
 
         csvc = cloud.get_course_service()
-        cloudCourses =  csvc.get_course_list()
+        cloudCourses = dict((c.courseId, c) for c in csvc.get_course_list())
 
 
         coursecount = courses is not None and len(courses) or 0
@@ -1144,23 +1146,24 @@ class ReportageUrl(webapp.RequestHandler):
         regid = self.request.get('regid') or None
         courseid = self.request.get('courseid') or None
         userid = self.request.get('userid') or None
+        settings = GetSettings()
 
         rsvc = cloud.get_reporting_service()
 
         if email is not None:
             userprofile = GetUserProfileFromEmail(email)
             ukey = str(userprofile.key())
-            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?learnerId=' + ukey + '&appId=' + settings.appid
+            reporturl = rsvc._get_reportage_service_url() + '/Reportage/reportage.php?learnerId=' + ukey + '&appId=' + settings.appid
         elif regid is not None:
-            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?registrationId=' + regid + '&appId=' + settings.appid
+            reporturl = rsvc._get_reportage_service_url() + '/Reportage/reportage.php?registrationId=' + regid + '&appId=' + settings.appid
         elif courseid is not None:
-            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?courseId=' + courseid + '&appId=' + settings.appid
+            reporturl = rsvc._get_reportage_service_url() + '/Reportage/reportage.php?courseId=' + courseid + '&appId=' + settings.appid
         elif userid is not None:
-            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?learnerId=' + userid + '&appId=' + settings.appid
+            reporturl = rsvc._get_reportage_service_url() + '/Reportage/reportage.php?learnerId=' + userid + '&appId=' + settings.appid
 
 
         else:
-            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?appId=' + settings.appid
+            reporturl = rsvc._get_reportage_service_url() + '/Reportage/reportage.php?appId=' + settings.appid
 
 
         reportageUrl = rsvc.get_report_url(rsvc.get_reportage_auth('FULLNAV','true'),reporturl)
@@ -1176,6 +1179,7 @@ class Reports(webapp.RequestHandler):
         poptype = self.request.get('pop') or 'all'
         datetype = self.request.get('date') or 'all'
         seltype = self.request.get('sel') or 'all'
+        settings = GetSettings()
 
         if poptype == "user":
             queryUser = users.get_current_user().user_id()
@@ -1216,7 +1220,7 @@ class Reports(webapp.RequestHandler):
 
         repAuth = rsvc.get_reportage_auth('NONAV','true')
         if repAuth is not None:
-            reporturl = rsvc.get_reportage_service_url() + '/Reportage/reportage.php?appId=' + settings.appid
+            reporturl = rsvc._get_reportage_service_url() + '/Reportage/reportage.php?appId=' + settings.appid
             reportageLaunchUrl = rsvc.get_report_url(repAuth,reporturl)
         else:
             reportageLaunchUrl = None

@@ -13,6 +13,8 @@ from google.appengine.api import mail
 import pytz
 from pytz import timezone
 
+from scormcloud.client import *
+
 from models import *
 from modelutils import *
 from gdatautils import *

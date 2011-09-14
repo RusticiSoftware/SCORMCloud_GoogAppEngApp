@@ -330,8 +330,7 @@ class CourseExit(webapp.RequestHandler):
 
         #get the reg results from the cloud
         regsvc = cloud.get_registration_service()
-        data = regsvc.get_registration_result(self.request.get('regid'),'course')
-        xmldoc = minidom.parseString(data)
+        xmldoc = regsvc.get_registration_result(self.request.get('regid'),'course')
         complete = xmldoc.getElementsByTagName("complete")[0].childNodes[0].nodeValue
         success = xmldoc.getElementsByTagName("success")[0].childNodes[0].nodeValue
         totaltime = xmldoc.getElementsByTagName("totaltime")[0].childNodes[0].nodeValue
